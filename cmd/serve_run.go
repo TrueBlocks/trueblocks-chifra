@@ -10,17 +10,30 @@
  * General Public License for more details. You should have received a copy of the GNU General
  * Public License along with this program. If not, see http://www.gnu.org/licenses/.
  *-------------------------------------------------------------------------------------------*/
-#include "etherlib.h"
-#include "options.h"
+package cmd
 
-//--------------------------------------------------------------
-int main(int argc, const char* argv[]) {
-    nodeNotRequired();
-    acctlib_init(quickQuitHandler);
+import (
+	"strings"
 
-    COptions options;
-    options.call_command(argc, argv);
+	"github.com/spf13/cobra"
+)
 
-    acctlib_cleanup();
-    return 0;
+func validateServeArgs(cmd *cobra.Command, args []string) error {
+	if len(ServeOpts.port) > 0 && !strings.Contains(ServeOpts.port, ":") {
+		return makeError("The --port option must start with a ':'")
+	}
+
+	return nil
+}
+
+func runServe(cmd *cobra.Command, args []string) {
+	options := ":8080"
+	if len(ServeOpts.port) > 0 {
+		options = " --port " + ServeOpts.port
+	}
+	arguments := ""
+	for _, arg := range args {
+		arguments += " " + arg
+	}
+	PassItOn("flame", options, arguments)
 }
