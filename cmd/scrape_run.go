@@ -1,4 +1,3 @@
-#pragma once
 /*-------------------------------------------------------------------------------------------
  * qblocks - fast, easily-accessible, fully-decentralized data from blockchains
  * copyright (c) 2016, 2021 TrueBlocks, LLC (http://trueblocks.io)
@@ -11,25 +10,42 @@
  * General Public License for more details. You should have received a copy of the GNU General
  * Public License along with this program. If not, see http://www.gnu.org/licenses/.
  *-------------------------------------------------------------------------------------------*/
-#include "acctlib.h"
+package cmd
 
-//-----------------------------------------------------------------------------
-class COptions : public COptionsBase {
-  public:
-    // BEG_CODE_DECLARE
-    // END_CODE_DECLARE
+import (
+	"fmt"
 
-    COptions(void);
-    ~COptions(void);
+	"github.com/spf13/cobra"
+)
 
-    bool parseArguments(string_q& command) {
-        return true;
-    }
-    void Init(void);
+func validateScrapeArgs(cmd *cobra.Command, args []string) error {
+	err := validateGlobalFlags(cmd, args)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-    bool call_command(int argc, const char* argv[]);
-};
-
-//-----------------------------------------------------------------------------
-extern map<string, string> chifraCmdMap;
-extern const char* STR_CHIFRA_HELP;
+func runScrape(cmd *cobra.Command, args []string) {
+	options := ""
+	if ScrapeOpts.pin {
+		options += " --pin"
+	}
+	if ScrapeOpts.sleep != 14 {
+		options += " --sleep " + fmt.Sprintf("%.1f", ScrapeOpts.sleep)
+	}
+	if ScrapeOpts.n_blocks != 2000 {
+		options += " --n_blocks " + fmt.Sprintf("%d", ScrapeOpts.n_blocks)
+	}
+	if ScrapeOpts.n_block_procs != 10 {
+		options += " --n_block_procs " + fmt.Sprintf("%d", ScrapeOpts.n_block_procs)
+	}
+	if ScrapeOpts.n_addr_procs != 20 {
+		options += " --n_addr_procs " + fmt.Sprintf("%d", ScrapeOpts.n_addr_procs)
+	}
+	arguments := ""
+	for _, arg := range args {
+		arguments += " " + arg
+	}
+	PassItOn("blockScrape", options, arguments)
+}
