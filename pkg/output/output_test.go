@@ -10,41 +10,36 @@
  * General Public License for more details. You should have received a copy of the GNU General
  * Public License along with this program. If not, see http://www.gnu.org/licenses/.
  *-------------------------------------------------------------------------------------------*/
-package cmd
+package output
 
 import (
-	"fmt"
-
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/utils"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/validate"
-	"github.com/spf13/cobra"
+	"reflect"
+	"testing"
 )
 
-func validateListArgs(cmd *cobra.Command, args []string) error {
-	if !utils.IsApiMode() {
-		err := validate.ValidateAtLeastOneAddr(args)
-		if err != nil {
-			return err
-		}
+func TestToStringRecords(t *testing.T) {
+	type TestType struct {
+		First  string
+		Second string
 	}
 
-	return nil
-}
+	input := []TestType{
+		{"first first", "first second"},
+		{"second first", "second second"},
+	}
 
-func runList(cmd *cobra.Command, args []string) {
-	options := " --appearances"
-	if ListOpts.count {
-		options += " --count"
+	result, err := ToStringRecords(input, false)
+	if err != nil {
+		t.Error(err)
+		return
 	}
-	if ListOpts.first_block > 0 {
-		options += " --first_block " + fmt.Sprintf("%d", ListOpts.first_block)
+	expected := [][]string{
+		{"first", "second"},
+		{"first first", "first second"},
+		{"second first", "second second"},
 	}
-	if ListOpts.last_block > 0 {
-		options += " --last_block " + fmt.Sprintf("%d", ListOpts.last_block)
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Error("Wrong result", result)
 	}
-	arguments := ""
-	for _, arg := range args {
-		arguments += " " + arg
-	}
-	PassItOn("acctExport", options, arguments)
 }
