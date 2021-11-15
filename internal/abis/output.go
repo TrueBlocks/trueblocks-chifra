@@ -14,6 +14,8 @@ package abisPkg
  *-------------------------------------------------------------------------------------------*/
 
 import (
+	"net/http"
+
 	"github.com/spf13/cobra"
 )
 
@@ -34,4 +36,25 @@ func RunAbis(cmd *cobra.Command, args []string) error {
 	}
 
 	return opts.Globals.PassItOn("grabABI", opts.ToDashStr())
+}
+
+func ServeAbis(w http.ResponseWriter, r *http.Request) {
+	opts := FromRequest(w, r)
+
+	err := opts.ValidateAbis()
+	if err != nil {
+		opts.Globals.RespondWithError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if len(opts.Find) > 0 {
+		err = opts.FindInternal()
+		if err != nil {
+			opts.Globals.RespondWithError(w, http.StatusInternalServerError, err)
+			return
+		}
+		return
+	}
+
+	opts.Globals.PassItOn("grabABI", opts.ToDashStr())
 }
