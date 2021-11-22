@@ -1,4 +1,4 @@
-package monitorsPkg
+package whenPkg
 
 /*-------------------------------------------------------------------------------------------
  * qblocks - fast, easily-accessible, fully-decentralized data from blockchains
@@ -12,47 +12,27 @@ package monitorsPkg
  * General Public License for more details. You should have received a copy of the GNU General
  * Public License along with this program. If not, see http://www.gnu.org/licenses/.
  *-------------------------------------------------------------------------------------------*/
-/*
- * Parts of this file were generated with makeClass --run. Edit only those parts of
- * the code inside of 'EXISTING_CODE' tags.
- */
 
-// EXISTING_CODE
 import (
 	"net/http"
+	"os"
 
-	"github.com/spf13/cobra"
+	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/logger"
+	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/specials"
 )
 
-// EXISTING_CODE
+func (opts *WhenOptions) ListInternal() error {
 
-func RunMonitors(cmd *cobra.Command, args []string) error {
-	opts := MonitorsFinishParse(args)
+	result := specials.GetSpecials(opts.Globals.TestMode)
+	if opts.Globals.ApiMode {
+		opts.Globals.Respond(opts.Globals.Writer, http.StatusOK, result)
 
-	err := opts.ValidateMonitors()
-	if err != nil {
-		return err
+	} else {
+		err := opts.Globals.Output(os.Stdout, opts.Globals.Format, result)
+		if err != nil {
+			logger.Log(logger.Error, err)
+		}
 	}
 
-	// EXISTING_CODE
-	return opts.Globals.PassItOn("acctExport", opts.ToCmdLine())
-	// EXISTING_CODE
+	return nil
 }
-
-func ServeMonitors(w http.ResponseWriter, r *http.Request) bool {
-	opts := FromRequest(w, r)
-
-	err := opts.ValidateMonitors()
-	if err != nil {
-		opts.Globals.RespondWithError(w, http.StatusInternalServerError, err)
-		return true
-	}
-
-	// EXISTING_CODE
-	// opts.Globals.PassItOn("acctExport --appearances", opts.ToCmdLine())
-	return false
-	// EXISTING_CODE
-}
-
-// EXISTING_CODE
-// EXISTING_CODE

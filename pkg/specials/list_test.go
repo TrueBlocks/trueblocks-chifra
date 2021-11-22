@@ -1,4 +1,4 @@
-package monitorsPkg
+package specials
 
 /*-------------------------------------------------------------------------------------------
  * qblocks - fast, easily-accessible, fully-decentralized data from blockchains
@@ -12,47 +12,44 @@ package monitorsPkg
  * General Public License for more details. You should have received a copy of the GNU General
  * Public License along with this program. If not, see http://www.gnu.org/licenses/.
  *-------------------------------------------------------------------------------------------*/
-/*
- * Parts of this file were generated with makeClass --run. Edit only those parts of
- * the code inside of 'EXISTING_CODE' tags.
- */
-
-// EXISTING_CODE
 import (
-	"net/http"
-
-	"github.com/spf13/cobra"
+	"testing"
 )
 
-// EXISTING_CODE
+func TestIsStringSpecialBlock(t *testing.T) {
+	result := IsStringSpecialBlock("devcon1")
 
-func RunMonitors(cmd *cobra.Command, args []string) error {
-	opts := MonitorsFinishParse(args)
-
-	err := opts.ValidateMonitors()
-	if err != nil {
-		return err
+	if !result {
+		t.Error("Fails for valid block name")
 	}
 
-	// EXISTING_CODE
-	return opts.Globals.PassItOn("acctExport", opts.ToCmdLine())
-	// EXISTING_CODE
+	shouldBeFalse := IsStringSpecialBlock("nosuchblock")
+
+	if shouldBeFalse {
+		t.Error("Passes for invalid block name")
+	}
 }
 
-func ServeMonitors(w http.ResponseWriter, r *http.Request) bool {
-	opts := FromRequest(w, r)
+func TestGetNameByValue(t *testing.T) {
+	name, found := GetNameByValue(2463000)
 
-	err := opts.ValidateMonitors()
-	if err != nil {
-		opts.Globals.RespondWithError(w, http.StatusInternalServerError, err)
-		return true
+	if !found {
+		t.Error("Block name not found")
 	}
 
-	// EXISTING_CODE
-	// opts.Globals.PassItOn("acctExport --appearances", opts.ToCmdLine())
-	return false
-	// EXISTING_CODE
+	if name != "tangerine" {
+		t.Errorf("Wrong name: %s", name)
+	}
 }
 
-// EXISTING_CODE
-// EXISTING_CODE
+func TestGetValueByName(t *testing.T) {
+	value, found := GetValueByName("tangerine")
+
+	if !found {
+		t.Error("Block not found by name")
+	}
+
+	if value != 2463000 {
+		t.Errorf("Wrong value: %d", value)
+	}
+}

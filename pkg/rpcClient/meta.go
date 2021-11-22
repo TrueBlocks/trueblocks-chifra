@@ -1,4 +1,4 @@
-package monitorsPkg
+package rpcClient
 
 /*-------------------------------------------------------------------------------------------
  * qblocks - fast, easily-accessible, fully-decentralized data from blockchains
@@ -12,47 +12,40 @@ package monitorsPkg
  * General Public License for more details. You should have received a copy of the GNU General
  * Public License along with this program. If not, see http://www.gnu.org/licenses/.
  *-------------------------------------------------------------------------------------------*/
-/*
- * Parts of this file were generated with makeClass --run. Edit only those parts of
- * the code inside of 'EXISTING_CODE' tags.
- */
 
-// EXISTING_CODE
 import (
-	"net/http"
-
-	"github.com/spf13/cobra"
+	"context"
+	"encoding/json"
 )
 
-// EXISTING_CODE
-
-func RunMonitors(cmd *cobra.Command, args []string) error {
-	opts := MonitorsFinishParse(args)
-
-	err := opts.ValidateMonitors()
-	if err != nil {
-		return err
-	}
-
-	// EXISTING_CODE
-	return opts.Globals.PassItOn("acctExport", opts.ToCmdLine())
-	// EXISTING_CODE
+type Meta struct {
+	Unripe    uint64 `json:"unripe"`
+	Ripe      uint64 `json:"ripe"`
+	Staging   uint64 `json:"staging"`
+	Finalized uint64 `json:"finalized"`
+	Client    uint64 `json:"client"`
 }
 
-func ServeMonitors(w http.ResponseWriter, r *http.Request) bool {
-	opts := FromRequest(w, r)
-
-	err := opts.ValidateMonitors()
-	if err != nil {
-		opts.Globals.RespondWithError(w, http.StatusInternalServerError, err)
-		return true
-	}
-
-	// EXISTING_CODE
-	// opts.Globals.PassItOn("acctExport --appearances", opts.ToCmdLine())
-	return false
-	// EXISTING_CODE
+func (m Meta) String() string {
+	ret, _ := json.MarshalIndent(m, "", "  ")
+	return string(ret)
 }
 
-// EXISTING_CODE
-// EXISTING_CODE
+func (m *Meta) Latest() uint64 {
+	return GetMeta(false).Client
+}
+
+func GetMeta(testMode bool) *Meta {
+	if testMode {
+		return &Meta{
+			Unripe:    0xdeadbeef,
+			Ripe:      0xdeadbeef,
+			Staging:   0xdeadbeef,
+			Finalized: 0xdeadbeef,
+			Client:    0xdeadbeef,
+		}
+	}
+	client := Get()
+	bn, _ := client.BlockNumber(context.Background())
+	return &Meta{Client: bn}
+}
