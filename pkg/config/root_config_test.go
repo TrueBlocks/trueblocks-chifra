@@ -9,16 +9,13 @@ import (
 )
 
 func Test_ReadTrueBlocks(t *testing.T) {
-	values := ReadTrueBlocks()
-	if len(values.Settings.RpcProvider) == 0 {
-		t.Error("RpcProvider is empty")
-	}
+	values := GetRootConfig()
 	if len(values.Settings.CachePath) == 0 {
 		t.Error("CachePath is empty")
 	}
 	if values.Settings.CachePath[len(values.Settings.CachePath)-1] != '/' {
 		// the raw path may not end with a slash, but the returned path better
-		ret := GetPathToCache()
+		ret := GetPathToCache(GetTestChain())
 		if len(ret) > 0 && ret[len(ret)-1] != '/' {
 			t.Error("CachePath does not end with a '/'")
 		}
@@ -31,12 +28,15 @@ func Test_ReadTrueBlocks(t *testing.T) {
 	}
 	if values.Settings.IndexPath[len(values.Settings.IndexPath)-1] != '/' {
 		// the raw path may not end with a slash, but the returned path better
-		ret := GetPathToIndex()
+		ret := GetPathToIndex(GetTestChain())
 		if len(ret) > 0 && ret[len(ret)-1] != '/' {
 			t.Error("IndexPath does not end with a '/'")
 		}
 	}
 	if values.Settings.IndexPath[0] != '/' {
 		t.Error("IndexPath is not an absolute path")
+	}
+	if len(values.Settings.DefaultChain) == 0 {
+		t.Error("DefaultChain is empty.")
 	}
 }
