@@ -2,20 +2,25 @@
 // Use of this source code is governed by a license that can
 // be found in the LICENSE file.
 
-package configPkg
+package statusPkg
 
 import (
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/validate"
 )
 
-func (opts *ConfigOptions) validateConfig() error {
+func (opts *StatusOptions) validateStatus() error {
 	opts.testLog()
 
 	if opts.BadFlag != nil {
 		return opts.BadFlag
 	}
 
-	err := validate.ValidateEnum("modes", opts.Mode, "[show|edit]")
+	err := validate.ValidateEnumSlice("--types", opts.Types, "[blocks|txs|traces|slurps|all]")
+	if err != nil {
+		return err
+	}
+
+	err = validate.ValidateEnum("mode", opts.Mode, "[index|monitors|names|abis|caches|some|all]")
 	if err != nil {
 		return err
 	}
