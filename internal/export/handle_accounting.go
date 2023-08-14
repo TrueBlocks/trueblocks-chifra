@@ -18,7 +18,7 @@ import (
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/types"
 )
 
-func (opts *ExportOptions) HandleShow(monitorArray []monitor.Monitor) error {
+func (opts *ExportOptions) HandleAccounting(monitorArray []monitor.Monitor) error {
 	if opts.Accounting {
 		// TODO: BOGUS - RECONSIDER THIS
 		opts.Articulate = true

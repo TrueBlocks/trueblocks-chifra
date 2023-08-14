@@ -13,20 +13,19 @@ import (
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/logger"
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/output"
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/types"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/uniq"
 	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/pkg/utils"
 	"github.com/ethereum/go-ethereum"
 )
 
-func (opts *BlocksOptions) HandleUniq() error {
+func (opts *BlocksOptions) HandleHashes() error {
 	chain := opts.Globals.Chain
 	nErrors := 0
 
 	ctx, cancel := context.WithCancel(context.Background())
-	fetchData := func(modelChan chan types.Modeler[types.RawAppearance], errorChan chan error) {
+	fetchData := func(modelChan chan types.Modeler[types.RawBlock], errorChan chan error) {
 		var err error
-		var appMap map[identifiers.ResolvedId]*types.SimpleAppearance
-		if appMap, _, err = identifiers.AsMap[types.SimpleAppearance](chain, opts.BlockIds); err != nil {
+		var appMap map[identifiers.ResolvedId]*types.SimpleBlock[string]
+		if appMap, _, err = identifiers.AsMap[types.SimpleBlock[string]](chain, opts.BlockIds); err != nil {
 			errorChan <- err
 			cancel()
 		}
@@ -34,21 +33,18 @@ func (opts *BlocksOptions) HandleUniq() error {
 		iterCtx, iterCancel := context.WithCancel(context.Background())
 		defer iterCancel()
 
-		apps := make([]types.SimpleAppearance, 0, len(appMap))
 		bar := logger.NewExpandingBar("", !opts.Globals.TestMode && len(opts.Globals.File) == 0, 125)
-		iterFunc := func(app identifiers.ResolvedId, value *types.SimpleAppearance) error {
-			procFunc := func(s *types.SimpleAppearance) error {
-				bar.Tick()
-				apps = append(apps, *s)
-				return nil
-			}
-
-			if err := uniq.GetUniqAddressesInBlock(chain, opts.Flow, opts.Conn, procFunc, app.BlockNumber); err != nil {
+		iterFunc := func(app identifiers.ResolvedId, value *types.SimpleBlock[string]) error {
+			if block, err := opts.Conn.GetBlockHeaderByNumber(app.BlockNumber); err != nil {
 				errorChan <- err
 				if errors.Is(err, ethereum.NotFound) {
-					return nil
+					errorChan <- errors.New("uncles not found")
 				}
 				cancel()
+				return nil
+			} else {
+				bar.Tick()
+				*value = block
 			}
 			return nil
 		}
@@ -61,28 +57,30 @@ func (opts *BlocksOptions) HandleUniq() error {
 				nErrors++
 			}
 		}
-		bar.Finish(true /* newLine */)
+		bar.Finish(true)
 
-		items := make([]types.SimpleAppearance, 0, len(appMap))
-		for _, app := range apps {
-			app := app
-			items = append(items, app)
+		items := make([]*types.SimpleBlock[string], 0, len(appMap))
+		for _, item := range appMap {
+			items = append(items, item)
 		}
 		sort.Slice(items, func(i, j int) bool {
 			if items[i].BlockNumber == items[j].BlockNumber {
-				return items[i].TransactionIndex < items[j].TransactionIndex
+				return items[i].Hash.Hex() < items[j].Hash.Hex()
 			}
 			return items[i].BlockNumber < items[j].BlockNumber
 		})
 
-		for _, s := range items {
-			s := s
-			modelChan <- &s
+		for _, item := range items {
+			item := item
+			modelChan <- item
 		}
 	}
 
 	extra := map[string]interface{}{
-		"uniq": true,
+		"hashes":     opts.Hashes,
+		"count":      opts.Count,
+		"uncles":     opts.Uncles,
+		"articulate": opts.Articulate,
 	}
 
 	return output.StreamMany(ctx, fetchData, opts.Globals.OutputOptsWithExtra(extra))
