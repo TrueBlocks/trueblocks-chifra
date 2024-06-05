@@ -1,8 +1,7 @@
 package types
 
-type Modeler[RT RawData] interface {
-	Model(chain, format string, verbose bool, extraOptions map[string]any) Model
-	Raw() *RT
+type Modeler interface {
+	Model(chain, format string, verbose bool, extraOpts map[string]any) Model
 }
 
 type Model struct {
@@ -10,10 +9,5 @@ type Model struct {
 	Order []string
 }
 
-type RawModeler interface{}
-
-type RawData interface {
-	RawBlock | RawTransaction | RawReceipt | RawLog |
-		RawTrace | RawTraceAction | RawTraceResult |
-		RawFunction | RawParameter | RawAppearance | RawModeler
-}
+// EXISTING_CODE
+// EXISTING_CODE
