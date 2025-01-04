@@ -1,21 +1,4 @@
----
-title: "Configurations"
-description: ""
-lead: ""
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: false
-images: []
-aliases:
- - "/docs/chifra/configs"
-menu:
-  chifra:
-    parent: commands
-weight: 61000
-toc: true
----
+# Configurations
 
 <!-- markdownlint-disable MD033 MD034 MD041 MD042 MD056 -->
 Many of the `chifra` commands allow you to customize their behaviour through configuration files

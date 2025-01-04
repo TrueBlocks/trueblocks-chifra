@@ -1,26 +1,4 @@
----
-title: "Unchained Index"
-description: "There are three ways to get the index. Each way involves some
-tradeoff between initialization time, storage use, and local access."
-lead: "After you install the core TrueBlocks utilities, you can access the index in three ways.
-Which way is the best for you? That depends on the tradeoffs you are willing to make."
-date: 2021-08-09T10:19:51-03:00
-lastmod:
-  - :git
-  - lastmod
-  - date
-  - publishDate
-draft: false
-aliases:
- - "/docs/prologue/how-can-i-get-the-index"
- - "/docs/install/get-the-index"
-images: []
-menu: 
-  docs:
-    parent: install
-weight: 0300	
-toc: true
----
+# Unchained Index
 
 <!-- markdownlint-disable MD041 MD033 -->
 

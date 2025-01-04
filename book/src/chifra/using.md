@@ -1,16 +1,4 @@
----
-title: "Tutorials"
-description: "How to use TrueBlocks to get useful data"
-lead: "How to use TrueBlocks to get useful data."
-draft: false
-aliases:
- - "/docs/using/using-chifra"
-menu:
-  chifra:
-    parent: introduction
-weight: 1100
-toc: true
----
+# Tutorials
 
 A few more examples in more detail.
 

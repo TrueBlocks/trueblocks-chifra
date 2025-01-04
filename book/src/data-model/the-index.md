@@ -1,21 +1,4 @@
----
-title: "Unchained index"
-description: "Unchained Index allows blazingly fast, perfectly-private access to any account anywhere on the chain."
-lead: "Unchained Index allows blazingly fast, perfectly-private access to any account anywhere on the chain."
-date: 2021-07-06T09:35:59-03:00
-lastmod:
-  - :git
-  - lastmod
-  - date
-  - publishDate
-draft: false
-images: []
-menu: 
-  data:
-    parent: intro
-weight: 1100
-toc: true
----
+# Unchained index
 
 <!-- markdownlint-disable MD041 MD033 -->
 

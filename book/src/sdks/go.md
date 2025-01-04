@@ -1,15 +1,4 @@
----
-title: "GoLang SDK"
-description: "We've generated a few SDKs for your use"
-lead: ""
-draft: false
-url: "/sdks/typescript-go"
-menu: 
-  sdks:
-    parent: langauges
-weight: 2000
-toc: true
----
+# GoLang SDK
 
 The GoLang SDK is in alpha.
 

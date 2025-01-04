@@ -1,20 +1,4 @@
----
-title: "Accounts"
-description: "Access and cache transactional data"
-lead: ""
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: false
-aliases:
- - "/docs/chifra/accounts"
-menu:
-  chifra:
-    parent: commands
-weight: 11000
-toc: true
----
+# Accounts
 
 The Accounts group of commands is at the heart of TrueBlocks. They allow you to produce and analyze
 transactional histories for one or more Ethereum addresses.

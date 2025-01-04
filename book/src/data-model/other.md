@@ -1,18 +1,4 @@
----
-title: "Other"
-description: "Access to other and external data"
-lead: ""
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: false
-menu:
-  data:
-    parent: collections
-weight: 51000
-toc: true
----
+# Other
 
 The following commands provide useful miscellaneous tools:
 

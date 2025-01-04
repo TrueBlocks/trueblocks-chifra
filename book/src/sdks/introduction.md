@@ -1,15 +1,4 @@
----
-title: "SDKs"
-description: "We've generated a few SDKs for your use"
-lead: ""
-draft: false
-url: "/sdks/introduction"
-menu: 
-  sdks:
-    parent: introduction
-weight: 1000
-toc: true
----
+# SDKs
 
 [Chifra serve](/chifra/admin/#chifra-daemon) provides an API interface to the `chifra` command line. As part of this
 functionality, we've written two SDKs for Python and TypeScript to make using the API easier. We welcome

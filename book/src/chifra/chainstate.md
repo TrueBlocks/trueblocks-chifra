@@ -1,20 +1,4 @@
----
-title: "Chain state"
-description: "Access to account and token state"
-lead: ""
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: false
-aliases:
- - "/docs/chifra/chainstate"
-menu:
-  chifra:
-    parent: commands
-weight: 31000
-toc: true
----
+# Chain state
 
 The two tools in this group deal with the Chain State. As chain state data concerns balances and
 byte code. it is distinct from Chain Data, which concerns things like blocks, transactions, or

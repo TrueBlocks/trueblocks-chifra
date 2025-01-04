@@ -1,15 +1,4 @@
----
-title: "Python SDK"
-description: "We've generated a few SDKs for your use"
-lead: ""
-draft: false
-url: "/sdks/python-sdk"
-menu: 
-  sdks:
-    parent: langauges
-weight: 4000
-toc: true
----
+# Python SDK
 
 Here's a link to the [Python SDK](https://github.com/TrueBlocks/trueblocks-core/blob/master/sdk/python).
 

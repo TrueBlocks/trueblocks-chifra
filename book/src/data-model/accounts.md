@@ -1,18 +1,4 @@
----
-title: "Accounts"
-description: "Access and cache transactional data"
-lead: ""
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: false
-menu:
-  data:
-    parent: collections
-weight: 11000
-toc: true
----
+# Accounts
 
 <!-- markdownlint-disable MD012 MD034 -->
 The primary tool of TrueBlocks is `chifra export`. This tool extracts, directly from the chain,

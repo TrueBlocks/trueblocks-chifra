@@ -1,20 +1,4 @@
----
-title: "Chain data"
-description: "Access and cache blockchain-related data"
-lead: ""
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: false
-aliases:
- - "/docs/chifra/chaindata"
-menu:
-  chifra:
-    parent: commands
-weight: 21000
-toc: true
----
+# Chain data
 
 The Chain Data group of tools extract blockchain data directly from the node. You may extract
 block data, transactional data, receipts, logs, traces, and other information. Each tool has it own

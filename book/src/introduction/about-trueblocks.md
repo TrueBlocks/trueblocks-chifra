@@ -1,21 +1,4 @@
----
-title: "About TrueBlocks"
-description: "How does TrueBlocks address the problem"
-lead: "How does TrueBlocks address the problem."
-date: 2021-10-04T10:03:01-03:00
-lastmod:
-  - :git
-  - lastmod
-  - date
-  - publishDate
-draft: false
-images: []
-menu: 
-  docs:
-    parent: prologue
-weight: 0201
-toc: true
----
+# About TrueBlocks
 
 ## TrueBlocks provides a solution
 

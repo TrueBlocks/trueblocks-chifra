@@ -1,20 +1,4 @@
----
-title: "Admin"
-description: "Control the scraper and build the index"
-lead: ""
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: false
-aliases:
- - "/docs/chifra/admin"
-menu:
-  chifra:
-    parent: commands
-weight: 41000
-toc: true
----
+# Admin
 
 The Admin group of commands allows you to query the status of the TrueBlocks system and
 manage various aspects including the Unchained Index. You may query the status; query for information

@@ -1,16 +1,4 @@
----
-title: "Using chifra"
-description: "A first introduction to chifra"
-draft: false
-url: "/chifra/introduction"
-aliases:
- - "/docs/using/introducing-chifra"
-menu: 
-  chifra:
-    parent: introduction
-weight: 1000
-toc: true
----
+# Using chifra
 
 Like `git`, TrueBlocks has a command called `chifra` that gives you access to all of the other subcommands.
 

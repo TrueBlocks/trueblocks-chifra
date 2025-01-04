@@ -1,18 +1,4 @@
----
-title: "Chain state"
-description: "Access to account and token state"
-lead: ""
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: false
-menu:
-  data:
-    parent: collections
-weight: 31000
-toc: true
----
+# Chain state
 
 The data structures produced by tools in the Chain State category provide details on the balances
 (ERC20 or ETH) of an address against a particular token or block. Additionally, direct access to

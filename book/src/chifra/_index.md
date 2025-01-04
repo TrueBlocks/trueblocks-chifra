@@ -1,18 +1,4 @@
----
-title : "Chifra Command Line"
-description: "The TrueBlocks CLI"
-lead: ""
-date: 2020-10-06T08:48:45+00:00
-aliases:
- - "/docs/chifra/"
-lastmod:
-  - :git
-  - lastmod
-  - date
-  - publishDate
-draft: false
-images: []
----
+# Chifra Command Line"
 
 The chifra command provides access to all the applications and tools available:
 

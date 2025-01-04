@@ -1,21 +1,4 @@
----
-title: "Install Docker"
-description: "Install the Docker Version of TrueBlocks "
-lead: "Explorer is the GUI frontend for TrueBlocks"
-date: 2021-07-02T08:01:07-03:00
-lastmod:
-  - :git
-  - lastmod
-  - date
-  - publishDate
-draft: true
-images: []
-menu: 
-  docs:
-    parent: install
-weight: 0400
-toc: true
----
+# Install Docker
 
 First, make sure that you have the `chifra-core` backend up and running,
 then run the application from [a clone of the explorer repo](https://github.com/TrueBlocks/trueblocks-explorer).

@@ -1,20 +1,5 @@
----
-title: "Globals"
-description: ""
-lead: ""
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: false
-aliases:
- - "/docs/chifra/accounts"
-menu:
-  chifra:
-    parent: commands
-weight: 71000
-toc: true
----
+# Globals
+
 ## Global Options
 
 Every `chifra` command has the following globally available options (unless the option is removed as shown in the `Disabled` column below). Certain commands have additional globally available features as noted in the `Enabled` column.

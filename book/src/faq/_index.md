@@ -1,11 +1,4 @@
----
-title: "FAQ"
-description: "FAQ"
-lead: ""
-date: 2024-02-18T13:06:08-03:00
-draft: false
-layout: "single"
----
+# FAQ
 
 {{< toc >}}
 

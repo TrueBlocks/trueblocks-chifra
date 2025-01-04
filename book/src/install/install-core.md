@@ -1,20 +1,4 @@
----
-title: "Install core"
-description: "TrueBlocks works on Linux and Mac"
-lead: "TrueBlocks runs on Linux and Mac. We do not support Windows."
-date: 2020-11-16T13:59:39+01:00
-lastmod: 2020-11-16T13:59:39+01:00
-draft: false
-images: []
-aliases:
-  - "/docs/prologue/installing-trueblocks"
-  - "/docs/install/install-trueblocks"
-menu:
-  docs:
-    parent: "install"
-weight: 0200
-toc: true
----
+# Install core
 
 <!-- markdownlint-disable MD041 MD033 -->
 

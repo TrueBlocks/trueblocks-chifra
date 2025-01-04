@@ -1,18 +1,4 @@
----
-title: "Chain data"
-description: "Access and cache blockchain-related data"
-lead: ""
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: false
-menu:
-  data:
-    parent: collections
-weight: 21000
-toc: true
----
+# Chain data
 
 The following data structures describe the output of various TrueBlocks blockchain queries. These
 data structures basically mimic the data available directly from the RPC.

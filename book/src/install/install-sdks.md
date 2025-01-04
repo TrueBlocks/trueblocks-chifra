@@ -1,18 +1,4 @@
----
-title: "Install SDKs"
-description: "Install the SDKs of TrueBlocks"
-lead: "Install the SDKs of TrueBlocks"
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: true
-menu: 
-  docs:
-    parent: install
-weight: 0500
-toc: true
----
+# Install SDKs
 
 First, make sure that you have the `chifra-core` backend up and running,
 then run the application from [a clone of the explorer repo](https://github.com/TrueBlocks/trueblocks-explorer).

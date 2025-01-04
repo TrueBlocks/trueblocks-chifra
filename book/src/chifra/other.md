@@ -1,20 +1,4 @@
----
-title: "Other"
-description: "Access to other and external data"
-lead: ""
-lastmod:
-  - :git
-  - lastmod
-  - publishDate
-draft: false
-aliases:
- - "/docs/chifra/other"
-menu:
-  chifra:
-    parent: commands
-weight: 51000
-toc: true
----
+# Other
 
 The commands in the Other group provide useful miscellaneous features.
 

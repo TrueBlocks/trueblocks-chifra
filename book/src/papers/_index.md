@@ -1,10 +1,4 @@
----
-title: "TrueBlocks Papers"
-description: "Long form links to PDFs"
-lead: "The TrueBlocks whitepapers"
-date: 2022-06-22T13:06:08-03:00
-draft: false
----
+# TrueBlocks Papers
 
 2023
 
