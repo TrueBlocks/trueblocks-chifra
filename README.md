@@ -1,2 +1,3 @@
 # trueblocks-chifra
-The command line app
+
+Future home of the trueblocks chifra project.
