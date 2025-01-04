@@ -1,10 +1,6 @@
 [book]
-    authors = ["TrueBlocks, LLC"]
-    language = "en"
-    multilingual = false
-    src = "src"
-    title = "The Chifra Book"
-
-[output.html]
-    numbered = false
-    default-theme = "rust"
+authors = ["TrueBlocks, LLC"]
+language = "en"
+multilingual = false
+src = "src"
+title = "The Chifra Book"

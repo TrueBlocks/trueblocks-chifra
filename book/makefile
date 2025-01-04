@@ -13,3 +13,4 @@ clean:
 
 deploy:
 	@make clean && touch ${SRC_MD} && make book && cd book && scp -pr * "docs@chifra.trueblocks.io:/var/www/chifra.trueblocks.io/html/"
+
