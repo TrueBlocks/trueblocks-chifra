@@ -38,7 +38,7 @@ jobs:
             mdbook build
 
             echo "Deploying to the book server..."
-            rsync -avz --delete book/ /var/www/chifra.trueblocks.io/html/
+            rsync -avz book/ /var/www/chifra.trueblocks.io/html/
       - name: Verify Build Output
         run: |
           if [ ! -d "book" ]; then
