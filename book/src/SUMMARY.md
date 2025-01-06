@@ -1,6 +1,8 @@
 # Summary
 
-- [Introduction](introduction/_index.md)
+- [Introduction](_index.md)
+- [About the Name](about_the_name.md)
+- [User Manual]()
   - [About TrueBlocks](introduction/about-trueblocks.md)
   - [Do I Need a Node?](introduction/do-i-need-a-node.md)
   - [Design Philosophy](introduction/design-philosophy.md)

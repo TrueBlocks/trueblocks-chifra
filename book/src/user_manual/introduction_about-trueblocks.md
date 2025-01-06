@@ -65,4 +65,4 @@ said](https://lwn.net/Articles/193245/):
 
 ## More words
 
-We've got more words for you. [This blog post covers these topics in much more detail](/blog/a-long-winded-explanation-of-trueblocks/).
+We've got more words for you. [This blog post covers these topics in much more detail](https://trueblocks.io/blog/a-long-winded-explanation-of-trueblocks/).
