@@ -53,6 +53,21 @@
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         {{/if}}
 
+        <!-- Allow for mermaid charts -->
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+        <script>
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: "forest", // Options: default, dark, forest, neutral
+                themeVariables: {
+                    primaryColor: "#ffcc00",
+                    edgeLabelBackground: "#ffffff",
+                    background: "#f0f0f0",
+                    fontFamily: "Arial, sans-serif",
+                }
+            });
+        </script>
+
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "{{ path_to_root }}";
