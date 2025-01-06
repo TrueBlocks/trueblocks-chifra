@@ -6,4 +6,9 @@
     title = "The Chifra Book"
 
 [output.html]
-theme = "theme"
+    numbered = false
+    default-theme = "rust"
+    theme = "theme"
+
+[preprocessor.mermaid]
+
