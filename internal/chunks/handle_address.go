@@ -11,14 +11,14 @@ import (
 	"io"
 	"strings"
 
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/base"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/config"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/file"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/index"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/output"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/tslib"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/types"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/walk"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/config"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/file"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/index"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/tslib"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/walk"
 )
 
 func (opts *ChunksOptions) HandleAddresses(rCtx *output.RenderCtx, blockNums []base.Blknum) error {

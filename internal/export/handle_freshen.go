@@ -1,7 +1,7 @@
 package exportPkg
 
 import (
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/monitor"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/monitor"
 )
 
 func (opts *ExportOptions) FreshenMonitorsForExport(monitorArray *[]monitor.Monitor) (bool, error) {

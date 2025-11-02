@@ -11,15 +11,15 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/base"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/config"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/logger"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/names"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/output"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/prefunds"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/rpc"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/types"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/utils"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/config"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/names"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/prefunds"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/rpc"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/utils"
 )
 
 func (opts *NamesOptions) HandleClean(rCtx *output.RenderCtx) error {

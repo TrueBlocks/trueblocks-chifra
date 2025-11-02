@@ -1,9 +1,9 @@
 package statusPkg
 
 import (
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/logger"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/output"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/types"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
 )
 
 func (opts *StatusOptions) HandleDiagnose(rCtx *output.RenderCtx) error {

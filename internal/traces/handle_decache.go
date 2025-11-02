@@ -5,10 +5,10 @@
 package tracesPkg
 
 import (
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/decache"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/output"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/types"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/walk"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/decache"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/walk"
 )
 
 func (opts *TracesOptions) HandleDecache(rCtx *output.RenderCtx) error {

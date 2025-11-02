@@ -10,15 +10,15 @@ import (
 	"os"
 	"strings"
 
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/base"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/colors"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/config"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/file"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/logger"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/output"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/sigintTrap"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/tslib"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/types"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/colors"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/config"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/file"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/sigintTrap"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/tslib"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
 )
 
 // criticalError means that we have to stop scraper

@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/base"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/prefunds"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/rpc/query"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/types"
-	"github.com/TrueBlocks/trueblocks-core/src/apps/chifra/v6/pkg/walk"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/prefunds"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/rpc/query"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/walk"
 	"github.com/ethereum/go-ethereum"
 )
 
