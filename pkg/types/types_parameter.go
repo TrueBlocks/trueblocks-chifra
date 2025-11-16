@@ -47,6 +47,7 @@ func (s *Parameter) Model(chain, format string, verbose bool, extraOpts map[stri
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"type",

@@ -90,6 +90,7 @@ func (s *Statement) Model(chain, format string, verbose bool, extraOpts map[stri
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"blockNumber", "transactionIndex", "logIndex", "transactionHash", "timestamp", "date",
@@ -768,7 +769,7 @@ func (s *Statement) AmountNet() *base.Wei {
 }
 
 func (s *Statement) BegBalDiff() *base.Wei {
-	val := &base.Wei{}
+	var val *base.Wei
 
 	if s.BlockNumber == 0 {
 		val = new(base.Wei).SetInt64(0)

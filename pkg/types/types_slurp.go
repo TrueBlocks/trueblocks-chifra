@@ -71,6 +71,7 @@ func (s *Slurp) Model(chain, format string, verbose bool, extraOpts map[string]a
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	switch s.From {
 	case base.BlockRewardSender, base.UncleRewardSender:

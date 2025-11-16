@@ -90,6 +90,7 @@ func (opts *ScrapeOptions) HandleScrape(rCtx *output.RenderCtx) error {
 	defer sigintTrap.Disable(trapChannel)
 
 	var blocks = make([]base.Blknum, 0, opts.BlockCnt)
+	_ = blocks // delint
 	var err error
 
 	// Clean the temporary files and makes sure block zero has been processed

@@ -58,6 +58,7 @@ func (s *Function) Model(chain, format string, verbose bool, extraOpts map[strin
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	if extraOpts["encodingSignatureOnly"] == true {
 		return Model{

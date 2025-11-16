@@ -53,6 +53,7 @@ func (s *Token) Model(chain, format string, verbose bool, extraOpts map[string]a
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	wanted := extraOpts["parts"].([]string)
 	if len(wanted) == 1 {

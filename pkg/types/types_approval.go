@@ -52,6 +52,7 @@ func (s *Approval) Model(chain, format string, verbose bool, extraOpts map[strin
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"blockNumber",

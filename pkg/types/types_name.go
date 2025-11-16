@@ -53,6 +53,7 @@ func (s *Name) Model(chain, format string, verbose bool, extraOpts map[string]an
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	switch extraOpts["single"] {
 	case "tags":

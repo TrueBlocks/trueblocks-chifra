@@ -60,6 +60,7 @@ func (s *TraceAction) Model(chain, format string, verbose bool, extraOpts map[st
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	// EXISTING_CODE
 

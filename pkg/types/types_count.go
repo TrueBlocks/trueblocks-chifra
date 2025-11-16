@@ -37,6 +37,7 @@ func (s *Count) Model(chain, format string, verbose bool, extraOpts map[string]a
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"count",

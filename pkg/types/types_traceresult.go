@@ -47,6 +47,7 @@ func (s *TraceResult) Model(chain, format string, verbose bool, extraOpts map[st
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	if format == "json" {
 		if s.GasUsed > 0 {

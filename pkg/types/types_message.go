@@ -36,6 +36,7 @@ func (s *Message) Model(chain, format string, verbose bool, extraOpts map[string
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	if len(s.Msg) > 0 {
 		order = append(order, "msg")

@@ -45,6 +45,7 @@ func (s *Destination) Model(chain, format string, verbose bool, extraOpts map[st
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"term",

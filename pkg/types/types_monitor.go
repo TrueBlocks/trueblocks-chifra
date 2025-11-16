@@ -50,6 +50,7 @@ func (s *Monitor) Model(chain, format string, verbose bool, extraOpts map[string
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"address",

@@ -51,6 +51,7 @@ func (s *AppearanceTable) Model(chain, format string, verbose bool, extraOpts ma
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"address",

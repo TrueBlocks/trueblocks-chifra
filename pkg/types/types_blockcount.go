@@ -46,6 +46,7 @@ func (s *BlockCount) Model(chain, format string, verbose bool, extraOpts map[str
 	}
 
 	var order = []string{}
+	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"blockNumber",
