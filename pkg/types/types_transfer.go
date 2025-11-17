@@ -21,10 +21,12 @@ type Transfer struct {
 	AmountIn            base.Wei       `json:"amountIn,omitempty"`
 	AmountOut           base.Wei       `json:"amountOut,omitempty"`
 	Asset               base.Address   `json:"asset"`
+	AssetName           string         `json:"assetName,omitempty"`
 	BlockNumber         base.Blknum    `json:"blockNumber"`
 	Decimals            uint64         `json:"decimals"`
 	GasOut              base.Wei       `json:"gasOut,omitempty"`
 	Holder              base.Address   `json:"holder"`
+	HolderName          string         `json:"holderName,omitempty"`
 	InternalIn          base.Wei       `json:"internalIn,omitempty"`
 	InternalOut         base.Wei       `json:"internalOut,omitempty"`
 	LogIndex            base.Lognum    `json:"logIndex"`
@@ -34,9 +36,11 @@ type Transfer struct {
 	MinerUncleRewardIn  base.Wei       `json:"minerUncleRewardIn,omitempty"`
 	PrefundIn           base.Wei       `json:"prefundIn,omitempty"`
 	Recipient           base.Address   `json:"recipient"`
+	RecipientName       string         `json:"recipientName,omitempty"`
 	SelfDestructIn      base.Wei       `json:"selfDestructIn,omitempty"`
 	SelfDestructOut     base.Wei       `json:"selfDestructOut,omitempty"`
 	Sender              base.Address   `json:"sender"`
+	SenderName          string         `json:"senderName,omitempty"`
 	TransactionIndex    base.Txnum     `json:"transactionIndex"`
 	Calcs               *TransferCalcs `json:"calcs,omitempty"`
 	// EXISTING_CODE

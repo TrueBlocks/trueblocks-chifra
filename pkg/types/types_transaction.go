@@ -51,6 +51,7 @@ type Transaction struct {
 	BlockHash            base.Hash         `json:"blockHash"`
 	BlockNumber          base.Blknum       `json:"blockNumber"`
 	From                 base.Address      `json:"from"`
+	FromName             string            `json:"fromName,omitempty"`
 	Gas                  base.Gas          `json:"gas"`
 	GasPrice             base.Gas          `json:"gasPrice"`
 	GasUsed              base.Gas          `json:"gasUsed"`
@@ -64,6 +65,7 @@ type Transaction struct {
 	Receipt              *Receipt          `json:"receipt"`
 	Timestamp            base.Timestamp    `json:"timestamp"`
 	To                   base.Address      `json:"to"`
+	ToName               string            `json:"toName,omitempty"`
 	Traces               []Trace           `json:"traces"`
 	TransactionIndex     base.Txnum        `json:"transactionIndex"`
 	TransactionType      string            `json:"type"`

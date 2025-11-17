@@ -20,20 +20,26 @@ import (
 // EXISTING_CODE
 
 type TraceAction struct {
-	Address        base.Address      `json:"address,omitempty"`
-	Author         base.Address      `json:"author,omitempty"`
-	Balance        base.Wei          `json:"balance,omitempty"`
-	CallType       string            `json:"callType"`
-	From           base.Address      `json:"from"`
-	Gas            base.Gas          `json:"gas"`
-	Init           string            `json:"init,omitempty"`
-	Input          string            `json:"input,omitempty"`
-	RefundAddress  base.Address      `json:"refundAddress,omitempty"`
-	RewardType     string            `json:"rewardType,omitempty"`
-	SelfDestructed base.Address      `json:"selfDestructed,omitempty"`
-	To             base.Address      `json:"to"`
-	Value          base.Wei          `json:"value"`
-	Calcs          *TraceActionCalcs `json:"calcs,omitempty"`
+	Address            base.Address      `json:"address,omitempty"`
+	AddressName        string            `json:"addressName,omitempty"`
+	Author             base.Address      `json:"author,omitempty"`
+	AuthorName         string            `json:"authorName,omitempty"`
+	Balance            base.Wei          `json:"balance,omitempty"`
+	CallType           string            `json:"callType"`
+	From               base.Address      `json:"from"`
+	FromName           string            `json:"fromName,omitempty"`
+	Gas                base.Gas          `json:"gas"`
+	Init               string            `json:"init,omitempty"`
+	Input              string            `json:"input,omitempty"`
+	RefundAddress      base.Address      `json:"refundAddress,omitempty"`
+	RefundAddressName  string            `json:"refundAddressName,omitempty"`
+	RewardType         string            `json:"rewardType,omitempty"`
+	SelfDestructed     base.Address      `json:"selfDestructed,omitempty"`
+	SelfDestructedName string            `json:"selfDestructedName,omitempty"`
+	To                 base.Address      `json:"to"`
+	ToName             string            `json:"toName,omitempty"`
+	Value              base.Wei          `json:"value"`
+	Calcs              *TraceActionCalcs `json:"calcs,omitempty"`
 	// EXISTING_CODE
 	// EXISTING_CODE
 }

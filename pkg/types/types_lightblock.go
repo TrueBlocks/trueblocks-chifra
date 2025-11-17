@@ -30,6 +30,7 @@ type LightBlock struct {
 	GasUsed       base.Gas         `json:"gasUsed"`
 	Hash          base.Hash        `json:"hash"`
 	Miner         base.Address     `json:"miner"`
+	MinerName     string           `json:"minerName,omitempty"`
 	ParentHash    base.Hash        `json:"parentHash"`
 	Timestamp     base.Timestamp   `json:"timestamp"`
 	Transactions  []string         `json:"transactions"`

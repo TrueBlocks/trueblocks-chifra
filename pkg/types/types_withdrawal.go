@@ -23,6 +23,7 @@ import (
 
 type Withdrawal struct {
 	Address        base.Address     `json:"address"`
+	AddressName    string           `json:"addressName,omitempty"`
 	Amount         base.Wei         `json:"amount"`
 	BlockNumber    base.Blknum      `json:"blockNumber"`
 	Index          base.Value       `json:"index"`

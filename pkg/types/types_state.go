@@ -26,6 +26,7 @@ import (
 type State struct {
 	AccountType string         `json:"accountType"`
 	Address     base.Address   `json:"address"`
+	AddressName string         `json:"addressName,omitempty"`
 	Balance     base.Wei       `json:"balance"`
 	BlockNumber base.Blknum    `json:"blockNumber"`
 	Code        string         `json:"code"`
@@ -33,6 +34,7 @@ type State struct {
 	Nonce       base.Value     `json:"nonce"`
 	Parts       StatePart      `json:"parts"`
 	Proxy       base.Address   `json:"proxy"`
+	ProxyName   string         `json:"proxyName,omitempty"`
 	Timestamp   base.Timestamp `json:"timestamp"`
 	Calcs       *StateCalcs    `json:"calcs,omitempty"`
 	// EXISTING_CODE

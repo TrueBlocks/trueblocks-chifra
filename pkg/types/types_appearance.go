@@ -34,6 +34,7 @@ type ChunkAppearance = Appearance
 
 type Appearance struct {
 	Address          base.Address     `json:"address"`
+	AddressName      string           `json:"addressName,omitempty"`
 	BlockNumber      uint32           `json:"blockNumber"`
 	Reason           string           `json:"reason,omitempty"`
 	Timestamp        base.Timestamp   `json:"timestamp"`

@@ -27,6 +27,7 @@ import (
 
 type Log struct {
 	Address          base.Address   `json:"address"`
+	AddressName      string         `json:"addressName,omitempty"`
 	ArticulatedLog   *Function      `json:"articulatedLog,omitempty"`
 	BlockHash        base.Hash      `json:"blockHash"`
 	BlockNumber      base.Blknum    `json:"blockNumber"`

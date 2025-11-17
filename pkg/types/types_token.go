@@ -20,10 +20,12 @@ import (
 
 type Token struct {
 	Address          base.Address   `json:"address"`
+	AddressName      string         `json:"addressName,omitempty"`
 	Balance          base.Wei       `json:"balance"`
 	BlockNumber      base.Blknum    `json:"blockNumber"`
 	Decimals         uint64         `json:"decimals"`
 	Holder           base.Address   `json:"holder"`
+	HolderName       string         `json:"holderName,omitempty"`
 	Name             string         `json:"name"`
 	PriorBalance     base.Wei       `json:"priorBalance,omitempty"`
 	Symbol           string         `json:"symbol"`

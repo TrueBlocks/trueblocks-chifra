@@ -22,6 +22,7 @@ import (
 
 type Abi struct {
 	Address        base.Address `json:"address"`
+	AddressName    string       `json:"addressName,omitempty"`
 	FileSize       int64        `json:"fileSize"`
 	Functions      []Function   `json:"functions"`
 	HasConstructor bool         `json:"hasConstructor"`

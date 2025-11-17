@@ -18,7 +18,8 @@ package types
 
 type {{.Class}} struct {
 {{range .Members}}{{if .IsSimpField}}{{.GoName}} {{.GoType}} {{.Tag}}
-{{end}}{{end}}	Calcs *{{.Class}}Calcs `json:"calcs,omitempty"`
+{{if eq .GoType "base.Address"}}{{.GoName}}Name string `json:"{{.Name}}Name,omitempty"`
+{{end}}{{end}}{{end}}	Calcs *{{.Class}}Calcs `json:"calcs,omitempty"`
 	// EXISTING_CODE
 	// EXISTING_CODE
 }

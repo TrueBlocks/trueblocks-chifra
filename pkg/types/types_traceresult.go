@@ -21,11 +21,12 @@ import (
 // EXISTING_CODE
 
 type TraceResult struct {
-	Address base.Address      `json:"address,omitempty"`
-	Code    string            `json:"code,omitempty"`
-	GasUsed base.Gas          `json:"gasUsed,omitempty"`
-	Output  string            `json:"output,omitempty"`
-	Calcs   *TraceResultCalcs `json:"calcs,omitempty"`
+	Address     base.Address      `json:"address,omitempty"`
+	AddressName string            `json:"addressName,omitempty"`
+	Code        string            `json:"code,omitempty"`
+	GasUsed     base.Gas          `json:"gasUsed,omitempty"`
+	Output      string            `json:"output,omitempty"`
+	Calcs       *TraceResultCalcs `json:"calcs,omitempty"`
 	// EXISTING_CODE
 	// EXISTING_CODE
 }

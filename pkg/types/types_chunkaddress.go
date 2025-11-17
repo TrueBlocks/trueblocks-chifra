@@ -18,12 +18,13 @@ import (
 // EXISTING_CODE
 
 type ChunkAddress struct {
-	Address    base.Address       `json:"address"`
-	Count      uint64             `json:"count"`
-	Offset     uint64             `json:"offset"`
-	Range      string             `json:"range"`
-	RangeDates *RangeDates        `json:"rangeDates,omitempty"`
-	Calcs      *ChunkAddressCalcs `json:"calcs,omitempty"`
+	Address     base.Address       `json:"address"`
+	AddressName string             `json:"addressName,omitempty"`
+	Count       uint64             `json:"count"`
+	Offset      uint64             `json:"offset"`
+	Range       string             `json:"range"`
+	RangeDates  *RangeDates        `json:"rangeDates,omitempty"`
+	Calcs       *ChunkAddressCalcs `json:"calcs,omitempty"`
 	// EXISTING_CODE
 	// EXISTING_CODE
 }

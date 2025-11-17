@@ -24,6 +24,7 @@ import (
 
 type Result struct {
 	Address          base.Address   `json:"address"`
+	AddressName      string         `json:"addressName,omitempty"`
 	ArticulatedOut   *Function      `json:"articulatedOut"`
 	BlockNumber      base.Blknum    `json:"blockNumber"`
 	EncodedArguments string         `json:"encodedArguments"`

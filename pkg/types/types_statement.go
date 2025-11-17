@@ -24,9 +24,11 @@ import (
 
 type Statement struct {
 	AccountedFor        base.Address    `json:"accountedFor"`
+	AccountedForName    string          `json:"accountedForName,omitempty"`
 	AmountIn            base.Wei        `json:"amountIn,omitempty"`
 	AmountOut           base.Wei        `json:"amountOut,omitempty"`
 	Asset               base.Address    `json:"asset"`
+	AssetName           string          `json:"assetName,omitempty"`
 	BegBal              base.Wei        `json:"begBal"`
 	BlockNumber         base.Blknum     `json:"blockNumber"`
 	CorrectAmountIn     base.Wei        `json:"correctAmountIn,omitempty"`
@@ -50,9 +52,11 @@ type Statement struct {
 	PrevBal             base.Wei        `json:"prevBal,omitempty"`
 	PriceSource         string          `json:"priceSource"`
 	Recipient           base.Address    `json:"recipient"`
+	RecipientName       string          `json:"recipientName,omitempty"`
 	SelfDestructIn      base.Wei        `json:"selfDestructIn,omitempty"`
 	SelfDestructOut     base.Wei        `json:"selfDestructOut,omitempty"`
 	Sender              base.Address    `json:"sender"`
+	SenderName          string          `json:"senderName,omitempty"`
 	SpotPrice           base.Float      `json:"spotPrice"`
 	Symbol              string          `json:"symbol"`
 	Timestamp           base.Timestamp  `json:"timestamp"`

@@ -19,19 +19,20 @@ import (
 // EXISTING_CODE
 
 type Name struct {
-	Address    base.Address `json:"address"`
-	Decimals   uint64       `json:"decimals"`
-	Deleted    bool         `json:"deleted,omitempty"`
-	IsContract bool         `json:"isContract,omitempty"`
-	IsCustom   bool         `json:"isCustom,omitempty"`
-	IsErc20    bool         `json:"isErc20,omitempty"`
-	IsErc721   bool         `json:"isErc721,omitempty"`
-	IsPrefund  bool         `json:"isPrefund,omitempty"`
-	Name       string       `json:"name"`
-	Source     string       `json:"source"`
-	Symbol     string       `json:"symbol"`
-	Tags       string       `json:"tags"`
-	Calcs      *NameCalcs   `json:"calcs,omitempty"`
+	Address     base.Address `json:"address"`
+	AddressName string       `json:"addressName,omitempty"`
+	Decimals    uint64       `json:"decimals"`
+	Deleted     bool         `json:"deleted,omitempty"`
+	IsContract  bool         `json:"isContract,omitempty"`
+	IsCustom    bool         `json:"isCustom,omitempty"`
+	IsErc20     bool         `json:"isErc20,omitempty"`
+	IsErc721    bool         `json:"isErc721,omitempty"`
+	IsPrefund   bool         `json:"isPrefund,omitempty"`
+	Name        string       `json:"name"`
+	Source      string       `json:"source"`
+	Symbol      string       `json:"symbol"`
+	Tags        string       `json:"tags"`
+	Calcs       *NameCalcs   `json:"calcs,omitempty"`
 	// EXISTING_CODE
 	Prefund base.Wei `json:"prefund,omitempty"`
 	Parts   Parts    `json:"parts,omitempty"`

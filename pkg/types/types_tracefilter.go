@@ -21,13 +21,15 @@ import (
 // EXISTING_CODE
 
 type TraceFilter struct {
-	After       uint64            `json:"after,omitempty"`
-	Count       uint64            `json:"count,omitempty"`
-	FromAddress base.Address      `json:"fromAddress,omitempty"`
-	FromBlock   base.Blknum       `json:"fromBlock,omitempty"`
-	ToAddress   base.Address      `json:"toAddress,omitempty"`
-	ToBlock     base.Blknum       `json:"toBlock,omitempty"`
-	Calcs       *TraceFilterCalcs `json:"calcs,omitempty"`
+	After           uint64            `json:"after,omitempty"`
+	Count           uint64            `json:"count,omitempty"`
+	FromAddress     base.Address      `json:"fromAddress,omitempty"`
+	FromAddressName string            `json:"fromAddressName,omitempty"`
+	FromBlock       base.Blknum       `json:"fromBlock,omitempty"`
+	ToAddress       base.Address      `json:"toAddress,omitempty"`
+	ToAddressName   string            `json:"toAddressName,omitempty"`
+	ToBlock         base.Blknum       `json:"toBlock,omitempty"`
+	Calcs           *TraceFilterCalcs `json:"calcs,omitempty"`
 	// EXISTING_CODE
 	// EXISTING_CODE
 }

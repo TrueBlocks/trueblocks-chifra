@@ -23,20 +23,23 @@ import (
 // EXISTING_CODE
 
 type Receipt struct {
-	BlockHash         base.Hash     `json:"blockHash,omitempty"`
-	BlockNumber       base.Blknum   `json:"blockNumber"`
-	ContractAddress   base.Address  `json:"contractAddress,omitempty"`
-	CumulativeGasUsed base.Gas      `json:"cumulativeGasUsed,omitempty"`
-	EffectiveGasPrice base.Gas      `json:"effectiveGasPrice,omitempty"`
-	From              base.Address  `json:"from,omitempty"`
-	GasUsed           base.Gas      `json:"gasUsed"`
-	IsError           bool          `json:"isError,omitempty"`
-	Logs              []Log         `json:"logs"`
-	Status            base.Value    `json:"status"`
-	To                base.Address  `json:"to,omitempty"`
-	TransactionHash   base.Hash     `json:"transactionHash"`
-	TransactionIndex  base.Txnum    `json:"transactionIndex"`
-	Calcs             *ReceiptCalcs `json:"calcs,omitempty"`
+	BlockHash           base.Hash     `json:"blockHash,omitempty"`
+	BlockNumber         base.Blknum   `json:"blockNumber"`
+	ContractAddress     base.Address  `json:"contractAddress,omitempty"`
+	ContractAddressName string        `json:"contractAddressName,omitempty"`
+	CumulativeGasUsed   base.Gas      `json:"cumulativeGasUsed,omitempty"`
+	EffectiveGasPrice   base.Gas      `json:"effectiveGasPrice,omitempty"`
+	From                base.Address  `json:"from,omitempty"`
+	FromName            string        `json:"fromName,omitempty"`
+	GasUsed             base.Gas      `json:"gasUsed"`
+	IsError             bool          `json:"isError,omitempty"`
+	Logs                []Log         `json:"logs"`
+	Status              base.Value    `json:"status"`
+	To                  base.Address  `json:"to,omitempty"`
+	ToName              string        `json:"toName,omitempty"`
+	TransactionHash     base.Hash     `json:"transactionHash"`
+	TransactionIndex    base.Txnum    `json:"transactionIndex"`
+	Calcs               *ReceiptCalcs `json:"calcs,omitempty"`
 	// EXISTING_CODE
 	// EXISTING_CODE
 }

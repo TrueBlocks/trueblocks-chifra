@@ -21,6 +21,7 @@ import (
 
 type Monitor struct {
 	Address     base.Address  `json:"address"`
+	AddressName string        `json:"addressName,omitempty"`
 	Deleted     bool          `json:"deleted"`
 	FileSize    int64         `json:"fileSize"`
 	IsEmpty     bool          `json:"isEmpty"`

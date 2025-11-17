@@ -25,9 +25,12 @@ type Approval struct {
 	LastAppTs    base.Timestamp `json:"lastAppTs"`
 	LastAppTxID  base.Txnum     `json:"lastAppTxID"`
 	Owner        base.Address   `json:"owner"`
+	OwnerName    string         `json:"ownerName,omitempty"`
 	Spender      base.Address   `json:"spender"`
+	SpenderName  string         `json:"spenderName,omitempty"`
 	Timestamp    base.Timestamp `json:"timestamp"`
 	Token        base.Address   `json:"token"`
+	TokenName    string         `json:"tokenName,omitempty"`
 	Calcs        *ApprovalCalcs `json:"calcs,omitempty"`
 	// EXISTING_CODE
 	// EXISTING_CODE

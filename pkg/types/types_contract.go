@@ -20,6 +20,7 @@ import (
 type Contract struct {
 	Abi         *Abi           `json:"abi"`
 	Address     base.Address   `json:"address"`
+	AddressName string         `json:"addressName,omitempty"`
 	ErrorCount  int64          `json:"errorCount"`
 	LastError   string         `json:"lastError"`
 	LastUpdated base.Timestamp `json:"lastUpdated"`

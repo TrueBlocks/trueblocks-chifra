@@ -23,30 +23,33 @@ import (
 // EXISTING_CODE
 
 type Slurp struct {
-	ArticulatedTx     *Function      `json:"articulatedTx"`
-	BlockHash         base.Hash      `json:"blockHash"`
-	BlockNumber       base.Blknum    `json:"blockNumber"`
-	ContractAddress   base.Address   `json:"contractAddress"`
-	CumulativeGasUsed string         `json:"cumulativeGasUsed"`
-	From              base.Address   `json:"from"`
-	FunctionName      string         `json:"functionName"`
-	Gas               base.Gas       `json:"gas"`
-	GasPrice          base.Gas       `json:"gasPrice"`
-	GasUsed           base.Gas       `json:"gasUsed"`
-	HasToken          bool           `json:"hasToken"`
-	Hash              base.Hash      `json:"hash"`
-	Input             string         `json:"input"`
-	IsError           bool           `json:"-"`
-	MethodId          string         `json:"methodId"`
-	Nonce             base.Value     `json:"nonce"`
-	Timestamp         base.Timestamp `json:"timestamp"`
-	To                base.Address   `json:"to"`
-	TransactionIndex  base.Txnum     `json:"transactionIndex"`
-	TxReceiptStatus   string         `json:"txReceiptStatus"`
-	ValidatorIndex    base.Value     `json:"validatorIndex"`
-	Value             base.Wei       `json:"value"`
-	WithdrawalIndex   base.Value     `json:"withdrawalIndex"`
-	Calcs             *SlurpCalcs    `json:"calcs,omitempty"`
+	ArticulatedTx       *Function      `json:"articulatedTx"`
+	BlockHash           base.Hash      `json:"blockHash"`
+	BlockNumber         base.Blknum    `json:"blockNumber"`
+	ContractAddress     base.Address   `json:"contractAddress"`
+	ContractAddressName string         `json:"contractAddressName,omitempty"`
+	CumulativeGasUsed   string         `json:"cumulativeGasUsed"`
+	From                base.Address   `json:"from"`
+	FromName            string         `json:"fromName,omitempty"`
+	FunctionName        string         `json:"functionName"`
+	Gas                 base.Gas       `json:"gas"`
+	GasPrice            base.Gas       `json:"gasPrice"`
+	GasUsed             base.Gas       `json:"gasUsed"`
+	HasToken            bool           `json:"hasToken"`
+	Hash                base.Hash      `json:"hash"`
+	Input               string         `json:"input"`
+	IsError             bool           `json:"-"`
+	MethodId            string         `json:"methodId"`
+	Nonce               base.Value     `json:"nonce"`
+	Timestamp           base.Timestamp `json:"timestamp"`
+	To                  base.Address   `json:"to"`
+	ToName              string         `json:"toName,omitempty"`
+	TransactionIndex    base.Txnum     `json:"transactionIndex"`
+	TxReceiptStatus     string         `json:"txReceiptStatus"`
+	ValidatorIndex      base.Value     `json:"validatorIndex"`
+	Value               base.Wei       `json:"value"`
+	WithdrawalIndex     base.Value     `json:"withdrawalIndex"`
+	Calcs               *SlurpCalcs    `json:"calcs,omitempty"`
 	// EXISTING_CODE
 	Amount base.Wei `json:"amount"`
 	// EXISTING_CODE

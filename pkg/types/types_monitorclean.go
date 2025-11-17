@@ -18,13 +18,14 @@ import (
 // EXISTING_CODE
 
 type MonitorClean struct {
-	Address  base.Address       `json:"address"`
-	Dups     int64              `json:"dups"`
-	Removed  bool               `json:"removed"`
-	SizeNow  int64              `json:"sizeNow"`
-	SizeThen int64              `json:"sizeThen"`
-	Staged   bool               `json:"staged"`
-	Calcs    *MonitorCleanCalcs `json:"calcs,omitempty"`
+	Address     base.Address       `json:"address"`
+	AddressName string             `json:"addressName,omitempty"`
+	Dups        int64              `json:"dups"`
+	Removed     bool               `json:"removed"`
+	SizeNow     int64              `json:"sizeNow"`
+	SizeThen    int64              `json:"sizeThen"`
+	Staged      bool               `json:"staged"`
+	Calcs       *MonitorCleanCalcs `json:"calcs,omitempty"`
 	// EXISTING_CODE
 	// EXISTING_CODE
 }
