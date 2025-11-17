@@ -44,6 +44,8 @@ func (s Abi) String() string {
 }
 
 func (s *Abi) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{
@@ -54,7 +56,6 @@ func (s *Abi) Model(chain, format string, verbose bool, extraOpts map[string]any
 		model[k] = v
 	}
 
-	var order = []string{}
 	// EXISTING_CODE
 	if extraOpts["list"] == true {
 		order = []string{

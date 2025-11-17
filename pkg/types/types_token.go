@@ -47,6 +47,7 @@ func (s *Token) Model(chain, format string, verbose bool, extraOpts map[string]a
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{
+		NewLabeler(s.Address, "address"),
 		NewLabeler(s.Holder, "holder"),
 	}
 	model := s.RawMap(props, &rawNames)

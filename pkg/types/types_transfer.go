@@ -58,6 +58,8 @@ func (s *Transfer) Model(chain, format string, verbose bool, extraOpts map[strin
 	rawNames := []Labeler{
 		NewLabeler(s.Asset, "asset"),
 		NewLabeler(s.Holder, "holder"),
+		NewLabeler(s.Recipient, "recipient"),
+		NewLabeler(s.Sender, "sender"),
 	}
 	model := s.RawMap(props, &rawNames)
 	for k, v := range s.CalcMap(props) {
