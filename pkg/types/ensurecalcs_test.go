@@ -17,17 +17,7 @@ func TestEnsureCalcsPopulation(t *testing.T) {
 	}
 
 	t.Run("Transaction", func(t *testing.T) {
-		tx := &Transaction{
-			Hash:        base.HexToHash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"),
-			BlockNumber: 18000000,
-			Gas:         21000,
-			GasPrice:    20000000000,
-			Value:       *base.NewWei(1000000000000000000),
-			Timestamp:   base.Timestamp(1699000000),
-			Receipt: &Receipt{
-				GasUsed: 21000,
-			},
-		}
+		tx := &Transaction{}
 
 		// Create a mocked CalcMap with all expected Transaction calculated fields
 		mockedCalcMap := map[string]any{
@@ -72,15 +62,7 @@ func TestEnsureCalcsPopulation(t *testing.T) {
 	})
 
 	t.Run("Statement", func(t *testing.T) {
-		stmt := &Statement{
-			BlockNumber: 18000000,
-			Asset:       base.HexToAddress("0x0000000000000000000000000000000000000000"),
-			AmountIn:    *base.NewWei(1000000000000000000),
-			AmountOut:   *base.NewWei(500000000000000000),
-			BegBal:      *base.NewWei(2000000000000000000),
-			EndBal:      *base.NewWei(2500000000000000000),
-			Timestamp:   base.Timestamp(1699000000),
-		}
+		stmt := &Statement{}
 
 		// Create a mocked CalcMap with all expected Statement calculated fields
 		mockedCalcMap := map[string]any{
@@ -124,14 +106,7 @@ func TestEnsureCalcsPopulation(t *testing.T) {
 	})
 
 	t.Run("Transfer", func(t *testing.T) {
-		transfer := &Transfer{
-			Sender:           base.HexToAddress("0x1234567890123456789012345678901234567890"),
-			Recipient:        base.HexToAddress("0x0987654321098765432109876543210987654321"),
-			Asset:            base.HexToAddress("0x0000000000000000000000000000000000000000"),
-			BlockNumber:      18000000,
-			TransactionIndex: 0,
-			LogIndex:         0,
-		}
+		transfer := &Transfer{}
 
 		// Create a mocked CalcMap with all expected Transfer calculated fields
 		mockedCalcMap := map[string]any{
@@ -163,11 +138,7 @@ func TestEnsureCalcsPopulation(t *testing.T) {
 	})
 
 	t.Run("Block", func(t *testing.T) {
-		block := &Block{
-			BlockNumber: 18000000,
-			Hash:        base.HexToHash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"),
-			Timestamp:   base.Timestamp(1699000000),
-		}
+		block := &Block{}
 
 		// Create a mocked CalcMap with all expected Block calculated fields
 		mockedCalcMap := map[string]any{
@@ -194,11 +165,7 @@ func TestEnsureCalcsPopulation(t *testing.T) {
 	})
 
 	t.Run("Log", func(t *testing.T) {
-		log := &Log{
-			LogIndex: 0,
-			Address:  base.HexToAddress("0x1234567890123456789012345678901234567890"),
-			Data:     "0x123456",
-		}
+		log := &Log{}
 
 		// Create a mocked CalcMap with all expected Log calculated fields
 		mockedCalcMap := map[string]any{
@@ -231,9 +198,7 @@ func TestEnsureCalcsPopulation(t *testing.T) {
 	})
 
 	t.Run("Trace", func(t *testing.T) {
-		trace := &Trace{
-			TraceIndex: 0,
-		}
+		trace := &Trace{}
 
 		// Create a mocked CalcMap with all expected Trace calculated fields
 		mockedCalcMap := map[string]any{
@@ -261,12 +226,7 @@ func TestEnsureCalcsPopulation(t *testing.T) {
 	})
 
 	t.Run("Approval", func(t *testing.T) {
-		approval := &Approval{
-			BlockNumber: 18000000,
-			Owner:       base.HexToAddress("0x1234567890123456789012345678901234567890"),
-			Spender:     base.HexToAddress("0x0987654321098765432109876543210987654321"),
-			Allowance:   *base.NewWei(1000000000000000000),
-		}
+		approval := &Approval{}
 
 		// Create a mocked CalcMap with all expected Approval calculated fields
 		mockedCalcMap := map[string]any{
@@ -614,11 +574,7 @@ func TestEnsureCalcsPopulation(t *testing.T) {
 	})
 
 	t.Run("Receipt", func(t *testing.T) {
-		receipt := &Receipt{
-			TransactionHash: base.HexToHash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"),
-			Status:          1,
-			GasUsed:         21000,
-		}
+		receipt := &Receipt{}
 
 		// Create a mocked CalcMap with Receipt calculated fields
 		mockedCalcMap := map[string]any{
@@ -657,10 +613,7 @@ func TestEnsureCalcsPopulation(t *testing.T) {
 	})
 
 	t.Run("Slurp", func(t *testing.T) {
-		slurp := &Slurp{
-			Hash:        base.HexToHash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"),
-			BlockNumber: 18000000,
-		}
+		slurp := &Slurp{}
 
 		// Create a mocked CalcMap with all expected Slurp calculated fields
 		mockedCalcMap := map[string]any{
@@ -687,10 +640,7 @@ func TestEnsureCalcsPopulation(t *testing.T) {
 	})
 
 	t.Run("Status", func(t *testing.T) {
-		status := &Status{
-			ClientVersion: "test-client",
-			Version:       "1.0.0",
-		}
+		status := &Status{}
 
 		// Create a mocked CalcMap with Status calculated fields
 		mockedCalcMap := map[string]any{
@@ -804,37 +754,6 @@ func TestEnsureCalcsPopulation(t *testing.T) {
 	})
 
 	// Test types that may have empty CalcMaps
-	t.Run("EmptyCalcTypes", func(t *testing.T) {
-		// Test Function with empty CalcMap
-		fn := &Function{Name: "test"}
-		err := fn.EnsureCalcs(props, []string{})
-		if err != nil {
-			t.Fatalf("Function EnsureCalcs failed: %v", err)
-		}
-		// Function may have nil Calcs if CalcMap is empty - this is expected
-
-		// Test Abi with empty CalcMap
-		abi := &Abi{}
-		err = abi.EnsureCalcs(props, []string{})
-		if err != nil {
-			t.Fatalf("Abi EnsureCalcs failed: %v", err)
-		}
-		// Abi may have nil Calcs if CalcMap is empty - this is expected
-
-		// Test Contract with empty CalcMap
-		contract := &Contract{
-			Address: base.HexToAddress("0x1234567890123456789012345678901234567890"),
-		}
-		err = contract.EnsureCalcs(props, []string{})
-		if err != nil {
-			t.Fatalf("Contract EnsureCalcs failed: %v", err)
-		}
-		// Contract may have nil Calcs if CalcMap is empty - this is expected
-
-		t.Logf("✅ Empty CalcMap types handled correctly")
-	})
-
-	t.Logf("🎉 All 49 types EnsureCalcs tests completed!") // Test types that may have empty CalcMaps
 	t.Run("EmptyCalcTypes", func(t *testing.T) {
 		// Test Function with empty CalcMap
 		fn := &Function{Name: "test"}

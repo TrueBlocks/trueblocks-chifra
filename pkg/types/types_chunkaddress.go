@@ -34,6 +34,8 @@ func (s ChunkAddress) String() string {
 }
 
 func (s *ChunkAddress) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{
@@ -44,8 +46,6 @@ func (s *ChunkAddress) Model(chain, format string, verbose bool, extraOpts map[s
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"address",

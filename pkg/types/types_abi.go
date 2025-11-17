@@ -55,7 +55,6 @@ func (s *Abi) Model(chain, format string, verbose bool, extraOpts map[string]any
 	}
 
 	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	if extraOpts["list"] == true {
 		order = []string{

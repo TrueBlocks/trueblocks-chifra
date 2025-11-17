@@ -10,15 +10,15 @@ import (
 
 func TestSortByAddressAscending(t *testing.T) {
 	abis := []Abi{
-		{base.HexToAddress("0x2"), 2048, []Function{}, false, false, false, true, "2024-08-01", 10, 5, "AbiTwo", "/path/two", nil},
-		{base.HexToAddress("0x3"), 4096, []Function{}, false, false, false, true, "2024-08-03", 12, 3, "AbiThree", "/path/three", nil},
-		{base.HexToAddress("0x1"), 1024, []Function{}, false, false, false, false, "2024-08-02", 8, 6, "AbiOne", "/path/one", nil},
+		{Address: base.HexToAddress("0x2"), FileSize: 2048, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-01", NFunctions: 10, NEvents: 5, Name: "AbiTwo", Path: "/path/two"},
+		{Address: base.HexToAddress("0x3"), FileSize: 4096, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-03", NFunctions: 12, NEvents: 3, Name: "AbiThree", Path: "/path/three"},
+		{Address: base.HexToAddress("0x1"), FileSize: 1024, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: false, LastModDate: "2024-08-02", NFunctions: 8, NEvents: 6, Name: "AbiOne", Path: "/path/one"},
 	}
 
 	expected := []Abi{
-		{base.HexToAddress("0x1"), 1024, []Function{}, false, false, false, false, "2024-08-02", 8, 6, "AbiOne", "/path/one", nil},
-		{base.HexToAddress("0x2"), 2048, []Function{}, false, false, false, true, "2024-08-01", 10, 5, "AbiTwo", "/path/two", nil},
-		{base.HexToAddress("0x3"), 4096, []Function{}, false, false, false, true, "2024-08-03", 12, 3, "AbiThree", "/path/three", nil},
+		{Address: base.HexToAddress("0x1"), FileSize: 1024, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: false, LastModDate: "2024-08-02", NFunctions: 8, NEvents: 6, Name: "AbiOne", Path: "/path/one"},
+		{Address: base.HexToAddress("0x2"), FileSize: 2048, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-01", NFunctions: 10, NEvents: 5, Name: "AbiTwo", Path: "/path/two"},
+		{Address: base.HexToAddress("0x3"), FileSize: 4096, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-03", NFunctions: 12, NEvents: 3, Name: "AbiThree", Path: "/path/three"},
 	}
 
 	sort.Slice(abis, AbiCmp(abis, AbiBy(AbiAddress, Ascending)))
@@ -30,15 +30,15 @@ func TestSortByAddressAscending(t *testing.T) {
 
 func TestSortByFileSizeDescending(t *testing.T) {
 	abis := []Abi{
-		{base.HexToAddress("0x2"), 2048, []Function{}, false, false, false, true, "2024-08-01", 10, 5, "AbiTwo", "/path/two", nil},
-		{base.HexToAddress("0x3"), 4096, []Function{}, false, false, false, true, "2024-08-03", 12, 3, "AbiThree", "/path/three", nil},
-		{base.HexToAddress("0x1"), 1024, []Function{}, false, false, false, false, "2024-08-02", 8, 6, "AbiOne", "/path/one", nil},
+		{Address: base.HexToAddress("0x2"), FileSize: 2048, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-01", NFunctions: 10, NEvents: 5, Name: "AbiTwo", Path: "/path/two"},
+		{Address: base.HexToAddress("0x3"), FileSize: 4096, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-03", NFunctions: 12, NEvents: 3, Name: "AbiThree", Path: "/path/three"},
+		{Address: base.HexToAddress("0x1"), FileSize: 1024, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: false, LastModDate: "2024-08-02", NFunctions: 8, NEvents: 6, Name: "AbiOne", Path: "/path/one"},
 	}
 
 	expected := []Abi{
-		{base.HexToAddress("0x3"), 4096, []Function{}, false, false, false, true, "2024-08-03", 12, 3, "AbiThree", "/path/three", nil},
-		{base.HexToAddress("0x2"), 2048, []Function{}, false, false, false, true, "2024-08-01", 10, 5, "AbiTwo", "/path/two", nil},
-		{base.HexToAddress("0x1"), 1024, []Function{}, false, false, false, false, "2024-08-02", 8, 6, "AbiOne", "/path/one", nil},
+		{Address: base.HexToAddress("0x3"), FileSize: 4096, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-03", NFunctions: 12, NEvents: 3, Name: "AbiThree", Path: "/path/three"},
+		{Address: base.HexToAddress("0x2"), FileSize: 2048, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-01", NFunctions: 10, NEvents: 5, Name: "AbiTwo", Path: "/path/two"},
+		{Address: base.HexToAddress("0x1"), FileSize: 1024, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: false, LastModDate: "2024-08-02", NFunctions: 8, NEvents: 6, Name: "AbiOne", Path: "/path/one"},
 	}
 
 	sort.Slice(abis, AbiCmp(abis, AbiBy(AbiFileSize, Descending)))
@@ -50,15 +50,15 @@ func TestSortByFileSizeDescending(t *testing.T) {
 
 func TestSortByIsKnownDescendingThenByNameAscending(t *testing.T) {
 	abis := []Abi{
-		{base.HexToAddress("0x2"), 2048, []Function{}, false, false, false, true, "2024-08-01", 10, 5, "AbiTwo", "/path/two", nil},
-		{base.HexToAddress("0x1"), 1024, []Function{}, false, false, false, false, "2024-08-02", 8, 6, "AbiOne", "/path/one", nil},
-		{base.HexToAddress("0x3"), 4096, []Function{}, false, false, false, true, "2024-08-03", 12, 3, "AbiThree", "/path/three", nil},
+		{Address: base.HexToAddress("0x2"), FileSize: 2048, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-01", NFunctions: 10, NEvents: 5, Name: "AbiTwo", Path: "/path/two"},
+		{Address: base.HexToAddress("0x1"), FileSize: 1024, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: false, LastModDate: "2024-08-02", NFunctions: 8, NEvents: 6, Name: "AbiOne", Path: "/path/one"},
+		{Address: base.HexToAddress("0x3"), FileSize: 4096, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-03", NFunctions: 12, NEvents: 3, Name: "AbiThree", Path: "/path/three"},
 	}
 
 	expected := []Abi{
-		{base.HexToAddress("0x3"), 4096, []Function{}, false, false, false, true, "2024-08-03", 12, 3, "AbiThree", "/path/three", nil},
-		{base.HexToAddress("0x2"), 2048, []Function{}, false, false, false, true, "2024-08-01", 10, 5, "AbiTwo", "/path/two", nil},
-		{base.HexToAddress("0x1"), 1024, []Function{}, false, false, false, false, "2024-08-02", 8, 6, "AbiOne", "/path/one", nil},
+		{Address: base.HexToAddress("0x3"), FileSize: 4096, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-03", NFunctions: 12, NEvents: 3, Name: "AbiThree", Path: "/path/three"},
+		{Address: base.HexToAddress("0x2"), FileSize: 2048, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: true, LastModDate: "2024-08-01", NFunctions: 10, NEvents: 5, Name: "AbiTwo", Path: "/path/two"},
+		{Address: base.HexToAddress("0x1"), FileSize: 1024, Functions: []Function{}, HasConstructor: false, HasFallback: false, IsEmpty: false, IsKnown: false, LastModDate: "2024-08-02", NFunctions: 8, NEvents: 6, Name: "AbiOne", Path: "/path/one"},
 	}
 
 	sort.Slice(abis, AbiCmp(abis, AbiBy(AbiIsKnown, Descending), AbiBy(AbiName, Ascending)))

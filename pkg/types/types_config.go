@@ -26,6 +26,7 @@ func (s Config) String() string {
 
 func (s *Config) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
 	props := NewModelProps(chain, format, verbose, extraOpts)
+	var order []string
 
 	rawNames := []Labeler{}
 	model := s.RawMap(props, &rawNames)
@@ -33,8 +34,6 @@ func (s *Config) Model(chain, format string, verbose bool, extraOpts map[string]
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"version",

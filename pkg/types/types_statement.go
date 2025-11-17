@@ -76,6 +76,8 @@ func (s Statement) String() string {
 }
 
 func (s *Statement) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{
@@ -89,8 +91,6 @@ func (s *Statement) Model(chain, format string, verbose bool, extraOpts map[stri
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"blockNumber", "transactionIndex", "logIndex", "transactionHash", "timestamp", "date",
@@ -769,7 +769,7 @@ func (s *Statement) AmountNet() *base.Wei {
 }
 
 func (s *Statement) BegBalDiff() *base.Wei {
-	var val *base.Wei
+	val := &base.Wei{}
 
 	if s.BlockNumber == 0 {
 		val = new(base.Wei).SetInt64(0)

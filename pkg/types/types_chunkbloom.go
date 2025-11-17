@@ -39,6 +39,8 @@ func (s ChunkBloom) String() string {
 }
 
 func (s *ChunkBloom) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{}
@@ -47,8 +49,6 @@ func (s *ChunkBloom) Model(chain, format string, verbose bool, extraOpts map[str
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"range",

@@ -15,6 +15,11 @@ import (
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
 )
 
+// GetNamesForAddresses returns names for a slice of address strings.
+func GetNamesForAddresses(chain string, addresses []string) (map[base.Address]types.Name, error) {
+	return LoadNamesMap(chain, types.All, addresses)
+}
+
 // LoadNamesMap loads the names from the cache and returns a map of names
 func LoadNamesMap(chain string, parts types.Parts, terms []string) (map[base.Address]types.Name, error) {
 	namesMap := map[base.Address]types.Name{}

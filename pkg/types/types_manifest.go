@@ -35,6 +35,8 @@ func (s Manifest) String() string {
 }
 
 func (s *Manifest) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{}
@@ -43,8 +45,6 @@ func (s *Manifest) Model(chain, format string, verbose bool, extraOpts map[strin
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"version",

@@ -58,6 +58,8 @@ func (s Slurp) String() string {
 }
 
 func (s *Slurp) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{
@@ -70,8 +72,6 @@ func (s *Slurp) Model(chain, format string, verbose bool, extraOpts map[string]a
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	switch s.From {
 	case base.BlockRewardSender, base.UncleRewardSender:

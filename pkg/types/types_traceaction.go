@@ -44,6 +44,8 @@ func (s TraceAction) String() string {
 }
 
 func (s *TraceAction) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{
@@ -59,8 +61,6 @@ func (s *TraceAction) Model(chain, format string, verbose bool, extraOpts map[st
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	// EXISTING_CODE
 

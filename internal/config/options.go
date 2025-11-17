@@ -111,7 +111,7 @@ func configFinishParse(args []string) *ConfigOptions {
 	opts.Conn = opts.Globals.FinishParse(args, opts.getCaches())
 
 	// EXISTING_CODE
-	_ = defFmt
+	_ = defFmt // delint
 	defFmt = "txt"
 	for _, arg := range args {
 		opts.Mode = arg

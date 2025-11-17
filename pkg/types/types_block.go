@@ -47,6 +47,8 @@ func (s Block) String() string {
 }
 
 func (s *Block) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{
@@ -57,8 +59,6 @@ func (s *Block) Model(chain, format string, verbose bool, extraOpts map[string]a
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"blockNumber",

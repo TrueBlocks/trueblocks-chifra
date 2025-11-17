@@ -44,6 +44,8 @@ func (s Result) String() string {
 }
 
 func (s *Result) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{
@@ -54,8 +56,6 @@ func (s *Result) Model(chain, format string, verbose bool, extraOpts map[string]
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	if verbose {
 		order = []string{

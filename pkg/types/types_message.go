@@ -27,6 +27,8 @@ func (s Message) String() string {
 }
 
 func (s *Message) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{}
@@ -35,8 +37,6 @@ func (s *Message) Model(chain, format string, verbose bool, extraOpts map[string
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	if len(s.Msg) > 0 {
 		order = append(order, "msg")

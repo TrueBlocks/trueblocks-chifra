@@ -57,6 +57,8 @@ func (s Status) String() string {
 }
 
 func (s *Status) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{}
@@ -65,8 +67,6 @@ func (s *Status) Model(chain, format string, verbose bool, extraOpts map[string]
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	order = []string{
 		"cachePath",

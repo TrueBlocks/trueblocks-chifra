@@ -36,6 +36,8 @@ func (s TraceResult) String() string {
 }
 
 func (s *TraceResult) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{
@@ -46,8 +48,6 @@ func (s *TraceResult) Model(chain, format string, verbose bool, extraOpts map[st
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	if format == "json" {
 		if s.GasUsed > 0 {

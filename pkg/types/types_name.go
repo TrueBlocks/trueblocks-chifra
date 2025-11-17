@@ -44,6 +44,8 @@ func (s Name) String() string {
 }
 
 func (s *Name) Model(chain, format string, verbose bool, extraOpts map[string]any) Model {
+	var order []string
+
 	props := NewModelProps(chain, format, verbose, extraOpts)
 
 	rawNames := []Labeler{}
@@ -52,8 +54,6 @@ func (s *Name) Model(chain, format string, verbose bool, extraOpts map[string]an
 		model[k] = v
 	}
 
-	var order = []string{}
-	_ = order // delint
 	// EXISTING_CODE
 	switch extraOpts["single"] {
 	case "tags":
