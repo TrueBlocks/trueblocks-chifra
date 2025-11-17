@@ -14,6 +14,7 @@ import (
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/internal/globals"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/monitor"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output"
 	outputHelpers "github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output/helpers"
 	"github.com/spf13/cobra"
@@ -54,6 +55,12 @@ func (opts *TokensOptions) TokensInternal(rCtx *output.RenderCtx) error {
 	timer := logger.NewTimer()
 	msg := "chifra tokens"
 	// EXISTING_CODE
+	if opts.Approvals {
+		monitorArray := make([]monitor.Monitor, 0, len(opts.Addrs))
+		if canceled, err := opts.FreshenMonitorsForExport(&monitorArray); err != nil || canceled {
+			return err
+		}
+	}
 	// EXISTING_CODE
 	if opts.Globals.Decache {
 		err = opts.HandleDecache(rCtx)
