@@ -59,6 +59,9 @@ func (s *Token) Model(chain, format string, verbose bool, extraOpts map[string]a
 
 	// EXISTING_CODE
 	wanted := extraOpts["parts"].([]string)
+	if wanted == nil {
+		wanted = []string{"all"}
+	}
 	if len(wanted) == 1 {
 		switch wanted[0] {
 		case "all":
@@ -121,6 +124,9 @@ func (s *Token) RawMap(p *ModelProps, needed *[]Labeler) map[string]any {
 
 	// Determine which fields to include based on order logic from original
 	wanted := p.ExtraOpts["parts"].([]string)
+	if wanted == nil {
+		wanted = []string{"all"}
+	}
 	if len(wanted) == 1 {
 		switch wanted[0] {
 		case "all":
@@ -200,6 +206,9 @@ func (s *Token) CalcMap(p *ModelProps) map[string]any {
 
 	// Determine which fields to include based on order logic from original
 	wanted := p.ExtraOpts["parts"].([]string)
+	if wanted == nil {
+		wanted = []string{"all"}
+	}
 	if len(wanted) == 1 {
 		switch wanted[0] {
 		case "all":
