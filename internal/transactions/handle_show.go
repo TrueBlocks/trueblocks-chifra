@@ -22,7 +22,7 @@ func (opts *TransactionsOptions) HandleShow(rCtx *output.RenderCtx) (err error) 
 	testMode := opts.Globals.TestMode
 	nErrors := 0
 
-	abiCache := articulate.NewAbiCache(opts.Conn, opts.Articulate)
+	abiCache := articulate.NewAbiCache(opts.Conn, rCtx.IsStreaming(), opts.Articulate)
 	fetchData := func(modelChan chan types.Modeler, errorChan chan error) {
 		apps, _, err := identifiers.IdsToApps(chain, opts.TransactionIds)
 		if err != nil {

@@ -44,7 +44,7 @@ func (opts *AbisOptions) HandleShow(rCtx *output.RenderCtx) (err error) {
 
 func (opts *AbisOptions) LoadAbis(addrs []string, loadKnown bool) ([]*types.Function, string, error) {
 	_ = loadKnown
-	abiCache := articulate.NewAbiCache(opts.Conn, opts.Known)
+	abiCache := articulate.NewAbiCache(opts.Conn, false /* suppressErrors */, opts.Known)
 	for _, addr := range addrs {
 		address := base.HexToAddress(addr)
 		proxy := opts.ProxyForAddr

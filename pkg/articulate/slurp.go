@@ -11,7 +11,7 @@ func (abiCache *AbiCache) ArticulateSlurp(slurp *types.Slurp) error {
 	}
 
 	if err := abiCache.ArticulateTransaction(&tx); err != nil {
-		return err
+		return abiCache.returnError(err)
 	}
 
 	slurp.ArticulatedTx = tx.ArticulatedTx

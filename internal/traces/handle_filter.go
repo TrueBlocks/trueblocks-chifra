@@ -24,7 +24,7 @@ func (opts *TracesOptions) HandleFilter(rCtx *output.RenderCtx) error {
 	testMode := opts.Globals.TestMode
 	nErrors := 0
 
-	abiCache := articulate.NewAbiCache(opts.Conn, opts.Articulate)
+	abiCache := articulate.NewAbiCache(opts.Conn, rCtx.IsStreaming(), opts.Articulate)
 	traceFilter := types.TraceFilter{}
 	_, br := traceFilter.ParseBangString(chain, opts.Filter)
 

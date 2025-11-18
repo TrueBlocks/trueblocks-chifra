@@ -37,3 +37,7 @@ func (r *RenderCtx) WasCanceled() bool {
 		return false
 	}
 }
+
+func (r *RenderCtx) IsStreaming() bool {
+	return r.ModelChan != nil // || r.ErrorChan != nil
+}

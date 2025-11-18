@@ -28,7 +28,7 @@ func (abiCache *AbiCache) ArticulateTransaction(tx *types.Transaction) error {
 			abiCache.skipMap.SetValue(address, true)
 			if !errors.Is(err, rpc.ErrNotAContract) {
 				// Not being a contract is not an error because we want to articulate the input in case it's a message
-				return err
+				return abiCache.returnError(err)
 			}
 		} else {
 			abiCache.loadedMap.SetValue(address, true)
@@ -37,7 +37,7 @@ func (abiCache *AbiCache) ArticulateTransaction(tx *types.Transaction) error {
 
 	if !abiCache.skipMap.GetValue(address) {
 		if tx.ArticulatedTx, tx.Message, err = articulateTx(tx, &abiCache.AbiMap); err != nil {
-			return err
+			return abiCache.returnError(err)
 		}
 	} else {
 		if message, ok := decode.ArticulateString(tx.Input); ok {
@@ -47,12 +47,12 @@ func (abiCache *AbiCache) ArticulateTransaction(tx *types.Transaction) error {
 	// }
 
 	if err = abiCache.ArticulateReceipt(tx.Receipt); err != nil {
-		return err
+		return abiCache.returnError(err)
 	}
 
 	for index := range tx.Traces {
 		if err = abiCache.ArticulateTrace(&tx.Traces[index]); err != nil {
-			return err
+			return abiCache.returnError(err)
 		}
 	}
 

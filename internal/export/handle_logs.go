@@ -22,7 +22,7 @@ import (
 
 func (opts *ExportOptions) HandleLogs(rCtx *output.RenderCtx, monitorArray []monitor.Monitor) error {
 	fetchData := func(modelChan chan types.Modeler, errorChan chan error) {
-		abiCache := articulate.NewAbiCache(opts.Conn, opts.Articulate)
+		abiCache := articulate.NewAbiCache(opts.Conn, rCtx.IsStreaming(), opts.Articulate)
 		filter := types.NewFilter(
 			opts.Reversed,
 			opts.Reverted,

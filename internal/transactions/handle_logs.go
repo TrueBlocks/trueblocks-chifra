@@ -23,7 +23,7 @@ func (opts *TransactionsOptions) HandleLogs(rCtx *output.RenderCtx) error {
 	testMode := opts.Globals.TestMode
 	nErrors := 0
 
-	abiCache := articulate.NewAbiCache(opts.Conn, opts.Articulate)
+	abiCache := articulate.NewAbiCache(opts.Conn, rCtx.IsStreaming(), opts.Articulate)
 	logFilter := rpc.NewLogFilter(opts.Emitter, opts.Topic)
 
 	fetchData := func(modelChan chan types.Modeler, errorChan chan error) {

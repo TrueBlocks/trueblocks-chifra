@@ -12,7 +12,7 @@ import (
 func (abiCache *AbiCache) ArticulateTrace(trace *types.Trace) (err error) {
 	found, err := articulateTrace(trace, &abiCache.AbiMap)
 	if err != nil {
-		return err
+		return abiCache.returnError(err)
 
 	} else if found != nil {
 		trace.ArticulatedTrace = found
@@ -25,7 +25,7 @@ func (abiCache *AbiCache) ArticulateTrace(trace *types.Trace) (err error) {
 				abiCache.skipMap.SetValue(address, true)
 				if !errors.Is(err, rpc.ErrNotAContract) {
 					// Not being a contract is not an error because we want to articulate the input in case it's a message
-					return err
+					return abiCache.returnError(err)
 				}
 			} else {
 				abiCache.loadedMap.SetValue(address, true)
@@ -34,7 +34,7 @@ func (abiCache *AbiCache) ArticulateTrace(trace *types.Trace) (err error) {
 
 		if !abiCache.skipMap.GetValue(address) {
 			if trace.ArticulatedTrace, err = articulateTrace(trace, &abiCache.AbiMap); err != nil {
-				return err
+				return abiCache.returnError(err)
 			}
 		}
 

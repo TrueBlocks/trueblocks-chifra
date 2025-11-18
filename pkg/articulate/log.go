@@ -14,7 +14,7 @@ import (
 // ArticulateLog articulates a log by attaching the Articulated log structure if the ABI is found.
 func (abiCache *AbiCache) ArticulateLog(log *types.Log) error {
 	if found, err := articulateLogFromMap(log, &abiCache.AbiMap); err != nil {
-		return err
+		return abiCache.returnError(err)
 
 	} else if found != nil {
 		log.ArticulatedLog = found
@@ -27,7 +27,7 @@ func (abiCache *AbiCache) ArticulateLog(log *types.Log) error {
 				abiCache.skipMap.SetValue(address, true)
 				if !errors.Is(err, rpc.ErrNotAContract) {
 					// Not being a contract is not an error because we want to articulate the input in case it's a message
-					return err
+					return abiCache.returnError(err)
 				}
 			} else {
 				abiCache.loadedMap.SetValue(address, true)
@@ -36,7 +36,7 @@ func (abiCache *AbiCache) ArticulateLog(log *types.Log) error {
 
 		if !abiCache.skipMap.GetValue(address) {
 			if log.ArticulatedLog, err = articulateLogFromMap(log, &abiCache.AbiMap); err != nil {
-				return err
+				return abiCache.returnError(err)
 			}
 		}
 		return nil

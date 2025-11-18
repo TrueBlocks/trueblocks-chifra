@@ -7,7 +7,7 @@ import (
 )
 
 func (opts *SlurpOptions) HandleShow(rCtx *output.RenderCtx) error {
-	abiCache := articulate.NewAbiCache(opts.Conn, opts.Articulate)
+	abiCache := articulate.NewAbiCache(opts.Conn, rCtx.IsStreaming(), opts.Articulate)
 
 	provider, err := opts.Provider()
 	if err != nil {
