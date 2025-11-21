@@ -185,15 +185,6 @@ func (opts *TokensOptions) HandleApprovals(rCtx *output.RenderCtx) error {
 							ownerAddr := base.HexToAddress(item.Topics[1].Hex())
 							spenderAddr := base.HexToAddress(item.Topics[2].Hex())
 							tokenAddr := item.Address
-							currentAllowance, err := opts.getAllowanceAtBlock(tokenAddr, ownerAddr, spenderAddr, lastBlock)
-							if err != nil {
-								errChan <- err
-								continue
-							} else if currentAllowance == nil {
-								continue
-							} else if opts.NoZero && currentAllowance.IsZero() {
-								continue
-							}
 							key := approvalKey{
 								Owner:   ownerAddr,
 								Spender: spenderAddr,
@@ -220,8 +211,9 @@ func (opts *TokensOptions) HandleApprovals(rCtx *output.RenderCtx) error {
 							}
 
 							if isLater {
+								// Store approval info without querying allowance yet - we'll do that later for only the final set
 								approvals[key] = approvalInfo{
-									Allowance: currentAllowance,
+									Allowance: nil, // Will be populated later
 									LastTs:    item.Timestamp,
 									LastBlock: item.BlockNumber,
 									LastTxId:  item.TransactionIndex,
@@ -243,8 +235,23 @@ func (opts *TokensOptions) HandleApprovals(rCtx *output.RenderCtx) error {
 				bar.Finish(true /* newLine */)
 			}
 
+			// Now query allowances only for the final set of unique approvals
 			apps := make([]approvalKey, 0, len(approvals))
-			for key := range approvals {
+			for key, info := range approvals {
+				// Query the current allowance for this approval
+				currentAllowance, err := opts.getAllowanceAtBlock(key.Token, key.Owner, key.Spender, lastBlock)
+				if err != nil {
+					logger.Warn("Failed to get allowance for", key.Owner.Hex(), "->", key.Spender.Hex(), "on", key.Token.Hex(), ":", err)
+					continue
+				} else if currentAllowance == nil {
+					continue
+				} else if opts.NoZero && currentAllowance.IsZero() {
+					continue
+				}
+
+				// Update the approval info with the allowance
+				info.Allowance = currentAllowance
+				approvals[key] = info
 				apps = append(apps, key)
 			}
 
