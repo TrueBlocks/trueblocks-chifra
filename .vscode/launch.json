@@ -1,0 +1,437 @@
+{
+    "check-go-version": false,
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "chifra abis",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "cwd": "/Users/jrush/Development/trueblocks-core/build/",
+            "args": [
+                "abis",
+                "--count",
+            ],
+            "env": {}
+        },
+        {
+            "name": "chifra blocks",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "blocks",
+                "1000000-2000000:1000",
+                "--output",
+                "file",
+            ],
+            "env": {}
+        },
+        {
+            "name": "chifra serve",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "serve",
+            ],
+            "env": {}
+        },
+        {
+            "name": "chifra config",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "config",
+            ],
+            "env": {}
+        },
+        {
+            "name": "chifra chunks",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "cwd": "/Users/jrush/Development/trueblocks-core/build/",
+            "args": [
+                "chunks",
+                "manifest",
+                "--chain",
+                "gnosis",
+            ],
+            "env": {
+                "xTB_CHUNKS_DIFFPATH": "./oldData/current/unchained/",
+                "xTB_SETTINGS_INDEXPATH": "./oldData/priorToWithdrawals/unchained/",
+                "xxTB_SETTINGS_INDEXPATH": "./junk",
+                "TB_NO_USERQUERY": "no",
+                "xxTB_CHUNKS_PINFIRSTBLOCK": "4500000",
+            }
+        },
+        {
+            "name": "chifra explore",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "explore",
+                "0x0f1217b92276cd17608d4212879739e6a5ec388bd7a03bef9798655234afd2b2"
+            ],
+            "env": {}
+        },
+        {
+            "name": "chifra export",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "cwd": "/Users/jrush/Development/trueblocks-core/build/",
+            "args": [
+                "export",
+                "trueblocks.eth",
+                "--approvals",
+                "--max_records",
+                "3",
+                "--fmt",
+                "json",
+                "--cache",
+                "--emitter",
+                "0x6b175474e89094c44da98b954eedeac495271d0f",
+            ],
+            "env": {
+                "TEST_MODE": "true",
+                "xTB_SETTINGS_INDEXPATH": "./obj",
+                "NxEW_CODE": "true",
+                "TB_NO_USERQUERY": "true",
+            }
+        },
+        {
+            "name": "chifra help",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "help"
+            ],
+            "env": {}
+        },
+        {
+            "name": "chifra init",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "init",
+                "--all",
+            ],
+            "env": {
+                "TB_DEBUG_CURL": "true"
+            }
+        },
+        {
+            "name": "chifra list",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "list",
+                "0x4523408ef7cfd46d5a85988ff4d7b2c3ef905439",
+                "--chain",
+                "sepolia"
+            ],
+            "env": {
+                "TEST_MODE": "false"
+            }
+        },
+        {
+            "name": "chifra logs",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "logs",
+                "--articulate",
+                "--fmt",
+                "json",
+                "8769019.124",
+                "8769029.80",
+                "8769052.73",
+                "8769052.74",
+                "8769064.130",
+                "8769064.131",
+                "8769130.51",
+                "8769141.27"
+            ],
+            "env": {
+                "TEST_MODE": "true"
+            }
+        },
+        {
+            "name": "chifra monitors",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "cwd": "/Users/jrush/Development/trueblocks-core/build/",
+            "args": [
+                "monitors",
+                "--list"
+            ],
+            "env": {}
+        },
+        {
+            "name": "chifra names",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "names",
+                "--count",
+                "--prefund",
+            ],
+            "env": {
+                "TxEST_MODE": "true",
+                "TxB_NAME_ADDRESS": "0x0000000000000000000000000000000010101010",
+                "TxB_NAME_NAME": "NAME",
+                "TxB_NAME_TAG": "TAGS",
+                "TxB_NAME_SOURCE": "SOURCE",
+                "TxB_NAME_SYMBOL": "SYMBOL",
+                "TxB_NAME_DECIMALS": "11",
+                "TxB_NAME_DESCR": "DESCRIPTION",
+            }
+        },
+        {
+            "name": "chifra pins",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}",
+            "args": [
+                "pins",
+                "--help"
+            ],
+            "env": {}
+        },
+        {
+            "name": "chifra receipts",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "cwd": "/Users/jrush/Development/trueblocks-core/build/",
+            "args": [
+                "receipts",
+                "2222222.0",
+                "--fmt",
+                "csv",
+            ],
+            "env": {}
+        },
+        {
+            "name": "chifra scrape",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "cwd": "/Users/jrush/Development/trueblocks-core/build/",
+            "args": [
+                "scrape",
+                "--chain",
+                "gnosis"
+            ],
+            "env": {
+                "xTB_SETTINGS_INDEXPATH": "./junk"
+            }
+        },
+        {
+            "name": "chifra slurp",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "cwd": "/Users/jrush/Development/trueblocks-core/build/",
+            "args": [
+                "slurp",
+                "--parts",
+                "ext",
+                "--file",
+                "file",
+            ],
+            "env": {
+                "TB_DEBUG_CURL": "true",
+                "TEST_MODE": "true",
+            }
+        },
+        {
+            "name": "chifra serve (daemon)",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "daemon",
+            ],
+            "env": {}
+        },
+        {
+            "name": "chifra state",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "state",
+                "0xbb9bc244d798123fde783fcc1c72d3bb8c189413",
+                "1430957-1430966",
+                "--changes",
+                "--fmt",
+                "txt"
+            ],
+            "env": {}
+        },
+        {
+            "name": "chifra daemon",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "daemon",
+            ],
+        },
+        {
+            "name": "chifra status",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "status",
+                "abis",
+                "--max_records",
+                "100"
+            ],
+            "env": {
+                "XTB_CHAINS_MAINNETRPC": "http://localhost:8545",
+                "XTB_KEYS_ETHERSCAN_APIKEY": "12"
+            }
+        },
+        {
+            "name": "chifra tokens",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "args": [
+                "tokens",
+                "trueblocks.eth",
+                "--approvals",
+                "--cache",
+                "20000000",
+            ],
+        },
+        {
+            "name": "chifra traces",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "cwd": "/Users/jrush/Development/trueblocks-core/test/gold/tools/getTraces/",
+            "args": [
+                "traces",
+                "--cache",
+                "--filter",
+                "0x2ed0c4!0x2ed128!!0x8bbb73bcb5d553b5a556358d27625323fd781d37!1000!100",
+                "--fmt",
+                "json"
+            ]
+        },
+        {
+            "name": "chifra transactions",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "cwd": "/Users/jrush/Development/trueblocks-core/test/gold/tools/getTrans/",
+            "args": [
+                "transactions",
+                "4000000.5",
+                "--fmt",
+                "json",
+                "--raw"
+            ],
+            "env": {
+                "TxEST_MODE": "true"
+            }
+        },
+        {
+            "name": "chifra when",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}",
+            "cwd": "/Users/jrush/Development/trueblocks-core/build/",
+            "args": [
+                "when",
+                "0-latest:monthly"
+            ],
+            "env": {
+                "TEST_MODE-x": "true",
+                "TB_SETTINGS_INDEXPATH": "./obj"
+            }
+        },
+        {
+            "name": "goMaker",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/dev_tools/goMaker",
+            "cwd": "/Users/jrush/Development/trueblocks-browse/",
+            "args": [],
+            "env": {}
+        },
+        {
+            "name": "testRunner",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/dev_tools/testRunner",
+            "cwd": "/Users/jrush/Development/trueblocks-core/build/",
+            "args": [],
+            "env": {
+                "TEST_MODE": "true",
+                "TB_TEST_FILTER": "names:sdk"
+            }
+        },
+        {
+            "name": "keyStore",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/keystore",
+            "cwd": "${workspaceFolder}/examples/keystore",
+            "args": [
+                "--send",
+                "--to",
+                "0xccd7fc08532953676ff801791def07d3617ec712"
+            ],
+            "env": {}
+        },
+        {
+            "name": "indexManager",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/dev_tools/indexManager",
+            "cwd": "/Users/jrush/Development/trueblocks-core/build/",
+            "args": [],
+            "env": {}
+        },
+        {
+            "name": "nameManager",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/nameManager",
+            "cwd": "/Users/jrush/Development/trueblocks-core/build/",
+            "args": [
+                "--autoname",
+                "0x0e3efd5be54cc0f4c64e0d186b0af4b7f2a0e95f"
+            ],
+            "env": {}
+        },
+        {
+            "name": "khedra",
+            "type": "go",
+            "request": "launch",
+            "program": "${workspaceFolder}/khedra",
+            "cwd": "/Users/jrush/Development/trueblocks-core/khedra/",
+            "args": [
+                "config",
+                "show"
+            ],
+            "env": {}
+        },
+    ]
+}
