@@ -11,7 +11,11 @@ package types
 // EXISTING_CODE
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"math/big"
+	"path/filepath"
+	"strings"
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 )
@@ -260,6 +264,153 @@ func (s *Token) Date() string {
 	return base.FormattedDate(s.Timestamp)
 }
 
+func (s *Token) CacheLocations() (string, string, string) {
+	paddedId := fmt.Sprintf("%s-%s-%09d", s.Holder.Hex()[2:], s.Address.Hex()[2:], s.BlockNumber)
+	parts := make([]string, 3)
+	parts[0] = paddedId[:2]
+	parts[1] = paddedId[2:4]
+	parts[2] = paddedId[4:6]
+	subFolder := strings.ToLower("Token") + "s"
+	directory := filepath.Join(subFolder, filepath.Join(parts...))
+	return directory, paddedId, "bin"
+}
+
+func (s *Token) MarshalCache(writer io.Writer) (err error) {
+	// Address
+	if err = base.WriteValue(writer, s.Address); err != nil {
+		return err
+	}
+
+	// Balance
+	if err = base.WriteValue(writer, &s.Balance); err != nil {
+		return err
+	}
+
+	// BlockNumber
+	if err = base.WriteValue(writer, s.BlockNumber); err != nil {
+		return err
+	}
+
+	// Decimals
+	if err = base.WriteValue(writer, s.Decimals); err != nil {
+		return err
+	}
+
+	// Holder
+	if err = base.WriteValue(writer, s.Holder); err != nil {
+		return err
+	}
+
+	// Name
+	if err = base.WriteValue(writer, s.Name); err != nil {
+		return err
+	}
+
+	// PriorBalance
+	if err = base.WriteValue(writer, &s.PriorBalance); err != nil {
+		return err
+	}
+
+	// Symbol
+	if err = base.WriteValue(writer, s.Symbol); err != nil {
+		return err
+	}
+
+	// Timestamp
+	if err = base.WriteValue(writer, s.Timestamp); err != nil {
+		return err
+	}
+
+	// TotalSupply
+	if err = base.WriteValue(writer, &s.TotalSupply); err != nil {
+		return err
+	}
+
+	// TransactionIndex
+	if err = base.WriteValue(writer, s.TransactionIndex); err != nil {
+		return err
+	}
+
+	// TokenType
+	if err = base.WriteValue(writer, uint64(s.TokenType)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Token) UnmarshalCache(fileVersion uint64, reader io.Reader) (err error) {
+	// Check for compatibility and return cache.ErrIncompatibleVersion to invalidate this item (see #3638)
+	// EXISTING_CODE
+	// EXISTING_CODE
+
+	// Address
+	if err = base.ReadValue(reader, &s.Address, fileVersion); err != nil {
+		return err
+	}
+
+	// Balance
+	if err = base.ReadValue(reader, &s.Balance, fileVersion); err != nil {
+		return err
+	}
+
+	// BlockNumber
+	if err = base.ReadValue(reader, &s.BlockNumber, fileVersion); err != nil {
+		return err
+	}
+
+	// Decimals
+	if err = base.ReadValue(reader, &s.Decimals, fileVersion); err != nil {
+		return err
+	}
+
+	// Holder
+	if err = base.ReadValue(reader, &s.Holder, fileVersion); err != nil {
+		return err
+	}
+
+	// Name
+	if err = base.ReadValue(reader, &s.Name, fileVersion); err != nil {
+		return err
+	}
+
+	// PriorBalance
+	if err = base.ReadValue(reader, &s.PriorBalance, fileVersion); err != nil {
+		return err
+	}
+
+	// Symbol
+	if err = base.ReadValue(reader, &s.Symbol, fileVersion); err != nil {
+		return err
+	}
+
+	// Timestamp
+	if err = base.ReadValue(reader, &s.Timestamp, fileVersion); err != nil {
+		return err
+	}
+
+	// TotalSupply
+	if err = base.ReadValue(reader, &s.TotalSupply, fileVersion); err != nil {
+		return err
+	}
+
+	// TransactionIndex
+	if err = base.ReadValue(reader, &s.TransactionIndex, fileVersion); err != nil {
+		return err
+	}
+
+	// TokenType
+	var parts uint64
+	if err = base.ReadValue(reader, &parts, fileVersion); err != nil {
+		return err
+	}
+	s.TokenType = TokenType(parts)
+
+	s.FinishUnmarshal(fileVersion)
+
+	return nil
+}
+
 // FinishUnmarshal is used by the cache. It may be unused depending on auto-code-gen
 func (s *Token) FinishUnmarshal(fileVersion uint64) {
 	_ = fileVersion
@@ -333,6 +484,21 @@ func (t TokenType) IsErc20() bool {
 
 func (t TokenType) IsErc721() bool {
 	return t == TokenErc721
+}
+
+// MarshalCache writes the TokenType to cache as a uint8
+func (t TokenType) MarshalCache(writer io.Writer) error {
+	return base.WriteValue(writer, uint8(t))
+}
+
+// UnmarshalCache reads the TokenType from cache as a uint8
+func (t *TokenType) UnmarshalCache(fileVersion uint64, reader io.Reader) error {
+	var value uint8
+	if err := base.ReadValue(reader, &value, fileVersion); err != nil {
+		return err
+	}
+	*t = TokenType(value)
+	return nil
 }
 
 // EXISTING_CODE

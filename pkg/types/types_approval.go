@@ -11,6 +11,10 @@ package types
 // EXISTING_CODE
 import (
 	"encoding/json"
+	"fmt"
+	"io"
+	"path/filepath"
+	"strings"
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 )
@@ -131,6 +135,131 @@ func (s *Approval) CalcMap(p *ModelProps) map[string]any {
 
 func (s *Approval) Date() string {
 	return base.FormattedDate(s.Timestamp)
+}
+
+func (s *Approval) CacheLocations() (string, string, string) {
+	paddedId := fmt.Sprintf("%s-%s-%s-%09d", s.Owner.Hex()[2:], s.Token.Hex()[2:], s.Spender.Hex()[2:], s.BlockNumber)
+	parts := make([]string, 3)
+	parts[0] = paddedId[:2]
+	parts[1] = paddedId[2:4]
+	parts[2] = paddedId[4:6]
+	subFolder := strings.ToLower("Approval") + "s"
+	directory := filepath.Join(subFolder, filepath.Join(parts...))
+	return directory, paddedId, "bin"
+}
+
+func (s *Approval) MarshalCache(writer io.Writer) (err error) {
+	// Allowance
+	if err = base.WriteValue(writer, &s.Allowance); err != nil {
+		return err
+	}
+
+	// BlockNumber
+	if err = base.WriteValue(writer, s.BlockNumber); err != nil {
+		return err
+	}
+
+	// LastAppBlock
+	if err = base.WriteValue(writer, s.LastAppBlock); err != nil {
+		return err
+	}
+
+	// LastAppLogID
+	if err = base.WriteValue(writer, s.LastAppLogID); err != nil {
+		return err
+	}
+
+	// LastAppTs
+	if err = base.WriteValue(writer, s.LastAppTs); err != nil {
+		return err
+	}
+
+	// LastAppTxID
+	if err = base.WriteValue(writer, s.LastAppTxID); err != nil {
+		return err
+	}
+
+	// Owner
+	if err = base.WriteValue(writer, s.Owner); err != nil {
+		return err
+	}
+
+	// Spender
+	if err = base.WriteValue(writer, s.Spender); err != nil {
+		return err
+	}
+
+	// Timestamp
+	if err = base.WriteValue(writer, s.Timestamp); err != nil {
+		return err
+	}
+
+	// Token
+	if err = base.WriteValue(writer, s.Token); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Approval) UnmarshalCache(fileVersion uint64, reader io.Reader) (err error) {
+	// Check for compatibility and return cache.ErrIncompatibleVersion to invalidate this item (see #3638)
+	// EXISTING_CODE
+	// EXISTING_CODE
+
+	// Allowance
+	if err = base.ReadValue(reader, &s.Allowance, fileVersion); err != nil {
+		return err
+	}
+
+	// BlockNumber
+	if err = base.ReadValue(reader, &s.BlockNumber, fileVersion); err != nil {
+		return err
+	}
+
+	// LastAppBlock
+	if err = base.ReadValue(reader, &s.LastAppBlock, fileVersion); err != nil {
+		return err
+	}
+
+	// LastAppLogID
+	if err = base.ReadValue(reader, &s.LastAppLogID, fileVersion); err != nil {
+		return err
+	}
+
+	// LastAppTs
+	if err = base.ReadValue(reader, &s.LastAppTs, fileVersion); err != nil {
+		return err
+	}
+
+	// LastAppTxID
+	if err = base.ReadValue(reader, &s.LastAppTxID, fileVersion); err != nil {
+		return err
+	}
+
+	// Owner
+	if err = base.ReadValue(reader, &s.Owner, fileVersion); err != nil {
+		return err
+	}
+
+	// Spender
+	if err = base.ReadValue(reader, &s.Spender, fileVersion); err != nil {
+		return err
+	}
+
+	// Timestamp
+	if err = base.ReadValue(reader, &s.Timestamp, fileVersion); err != nil {
+		return err
+	}
+
+	// Token
+	if err = base.ReadValue(reader, &s.Token, fileVersion); err != nil {
+		return err
+	}
+
+	s.FinishUnmarshal(fileVersion)
+
+	return nil
 }
 
 // FinishUnmarshal is used by the cache. It may be unused depending on auto-code-gen
