@@ -3,6 +3,7 @@ package monitor
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/abi"
@@ -77,28 +78,53 @@ func (mon *Monitor) GetRemoveWarning() string {
 }
 
 func (mon *Monitor) RemoveStatements(l int, showProgress bool) error {
+	removedCount := 0
+
 	bar := logger.NewBar(logger.BarOptions{
-		Prefix:  "Decaching statements if present",
+		Prefix:  "Removing statements cache files",
 		Enabled: showProgress,
-		Total:   int64(l),
+		Type:    logger.Expanding,
+		Total:   int64(l), // Initial estimate based on appearances
 	})
-	itemsSeen := 0
-	visitFunc := func(path string, vP any) (bool, error) {
-		_ = vP
-		itemsSeen++
-		if itemsSeen%1000 == 0 {
-			bar.Tick()
-		} else {
-			bar.Bump()
-		}
-		if strings.Contains(path, "/"+mon.Address.Hex()[2:]) {
-			os.Remove(path)
-			// TODO: Clean empty folders here
-		}
-		return true, nil
+
+	// Use the hierarchical directory structure to optimize scanning
+	// Address f503017d... creates directories like statements/f5/03/01/
+	addrHex := strings.ToLower(mon.Address.Hex()[2:]) // Remove 0x prefix
+	targetDirs := []string{
+		filepath.Join(walk.GetRootPathFromCacheType(mon.Chain, walk.Cache_Statements), addrHex[:2], addrHex[2:4], addrHex[4:6]),
 	}
-	path := walk.GetRootPathFromCacheType(mon.Chain, walk.Cache_Statements)
-	err := walk.ForEveryFileInFolder(path, visitFunc, nil)
+
+	for _, targetDir := range targetDirs {
+		if !file.FolderExists(targetDir) {
+			continue
+		}
+
+		visitFunc := func(path string, vP any) (bool, error) {
+			_ = vP
+			// Since we're only walking directories that match our address prefix,
+			// we still need to check the filename starts with our address
+			filename := filepath.Base(path)
+			if strings.HasPrefix(filename, addrHex) && strings.HasSuffix(filename, ".bin") {
+				if err := os.Remove(path); err == nil {
+					removedCount++
+				}
+				// TODO: Clean empty folders here
+			}
+			bar.Tick()
+			return true, nil
+		}
+
+		err := walk.ForEveryFileInFolder(targetDir, visitFunc, nil)
+		if err != nil {
+			bar.Finish(true)
+			return err
+		}
+	}
+
 	bar.Finish(true)
-	return err
+
+	// Log the actual number of files removed
+	logger.Progress(showProgress, fmt.Sprintf("%d statement files removed for %s", removedCount, mon.Address.Hex()))
+
+	return nil
 }

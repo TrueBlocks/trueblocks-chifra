@@ -8,8 +8,10 @@ import (
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/decode"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/rpc/query"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/walk"
 )
 
 // erc721SupportsInterfaceData is the data needed to call the ERC-721 supportsInterface function
@@ -147,21 +149,23 @@ func (conn *Connection) GetTokenState(tokenAddress base.Address, hexBlockNo stri
 // GetBalanceAtToken returns token balance for given block.
 func (conn *Connection) GetBalanceAtToken(token, holder base.Address, bn base.Blknum) (*base.Wei, error) {
 	if token.Equal(base.FAKE_ETH_ADDRESS) {
-		return conn.GetBalanceAt(holder, bn)
+		return conn.getBalanceAt(holder, bn)
+	}
+
+	// Try reading from disk cache first
+	tokenBalance := &types.Token{
+		Holder:      holder,
+		Address:     token,
+		BlockNumber: bn,
+	}
+	if err := conn.ReadFromCache(tokenBalance); err == nil {
+		return &tokenBalance.Balance, nil
 	}
 
 	hexBlockNo := fmt.Sprintf("0x%x", bn)
 	if hexBlockNo != "" && hexBlockNo != "latest" && !strings.HasPrefix(hexBlockNo, "0x") {
 		hexBlockNo = fmt.Sprintf("0x%x", base.MustParseUint64(hexBlockNo))
 	}
-	// TODO: BOGUS - THIS IN MEMORY CACHE IS GOOD, BUT COULD BE BINARY FILE
-	key := fmt.Sprintf("%s|%s|%s", token.Hex(), holder.Hex(), hexBlockNo)
-	conn.cacheMutex.Lock()
-	if balance, ok := conn.tokenBalanceCache[key]; ok {
-		conn.cacheMutex.Unlock()
-		return balance, nil
-	}
-	conn.cacheMutex.Unlock()
 
 	payloads := []query.BatchPayload{{
 		Key: "balance",
@@ -189,10 +193,83 @@ func (conn *Connection) GetBalanceAtToken(token, holder base.Address, bn base.Bl
 		balance = base.HexToWei(*output["balance"])
 	}
 
-	// TODO: BOGUS - THIS IN MEMORY CACHE IS GOOD, BUT COULD BE BINARY FILE
-	conn.cacheMutex.Lock()
-	conn.tokenBalanceCache[key] = balance
-	conn.cacheMutex.Unlock()
+	// Write to disk cache
+	tokenBalance.Balance = *balance
+	tokenBalance.Timestamp = conn.GetBlockTimestamp(bn)
+	if err := conn.WriteToCache(tokenBalance, walk.Cache_Tokens, tokenBalance.Timestamp); err != nil {
+		logger.Warn("Failed to write token balance to cache:", err)
+	}
 
 	return balance, nil
+}
+
+// GetAllowanceAtToken returns token allowance for given block.
+func (conn *Connection) GetAllowanceAtToken(token, owner, spender base.Address, bn base.Blknum) (*base.Wei, error) {
+	if token.IsZero() {
+		return base.NewWei(0), fmt.Errorf("token address cannot be zero")
+	}
+	if owner.IsZero() {
+		return base.NewWei(0), fmt.Errorf("owner address cannot be zero")
+	}
+	if spender.IsZero() {
+		return base.NewWei(0), fmt.Errorf("spender address cannot be zero")
+	}
+
+	approval := &types.Approval{
+		Owner:       owner,
+		Token:       token,
+		Spender:     spender,
+		BlockNumber: bn,
+	}
+	if err := conn.ReadFromCache(approval); err == nil {
+		return &approval.Allowance, nil
+	}
+
+	funcSig := "0xdd62ed3e"
+	data := funcSig + owner.Pad32() + spender.Pad32()
+
+	var blockParam string
+	if bn == 0 {
+		blockParam = "latest"
+	} else {
+		blockParam = fmt.Sprintf("0x%x", bn)
+	}
+
+	payloads := []query.BatchPayload{{
+		Key: "allowance",
+		Payload: &query.Payload{
+			Method: "eth_call",
+			Params: query.Params{
+				map[string]any{
+					"to":   token.Hex(),
+					"data": data,
+				},
+				blockParam,
+			},
+		},
+	}}
+
+	output, err := query.QueryBatch[string](conn.Chain, payloads)
+	if err != nil {
+		return base.NewWei(0), fmt.Errorf("failed to query token allowance: %w", err)
+	}
+
+	var allowance *base.Wei
+	if output["allowance"] == nil {
+		allowance = base.NewWei(0)
+	} else {
+		allowance = base.HexToWei(*output["allowance"])
+		if allowance == nil {
+			return base.NewWei(0), fmt.Errorf("failed to parse allowance response")
+		}
+	}
+
+	// Write to disk cache
+	approval.Allowance = *allowance
+	approval.Timestamp = conn.GetBlockTimestamp(bn)
+	if err := conn.WriteToCache(approval, walk.Cache_Approvals, approval.Timestamp); err != nil {
+		logger.Warn("Failed to write approval to cache:", err)
+	}
+
+	return allowance, nil
 }

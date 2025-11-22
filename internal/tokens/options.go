@@ -222,6 +222,7 @@ func (opts *TokensOptions) getCaches() (caches map[walk.CacheType]bool) {
 	caches = map[walk.CacheType]bool{
 		walk.Cache_Tokens:       true,
 		walk.Cache_Transactions: opts.Approvals,
+		walk.Cache_Approvals:    opts.Approvals,
 	}
 	// EXISTING_CODE
 	return

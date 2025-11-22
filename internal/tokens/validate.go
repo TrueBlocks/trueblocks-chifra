@@ -38,34 +38,54 @@ func (opts *TokensOptions) validateTokens() error {
 		return validate.Usage("The {0} option is not yet implemented.", "--changes")
 	}
 
-	if opts.Approvals {
-		if opts.ByAcct {
-			return validate.Usage("The {0} option is not allowed with {1}.", "--by_acct", "--approvals")
-		}
-
+	if opts.Globals.Decache {
 		if len(opts.Addrs) == 0 {
 			return validate.Usage("You must specify at least one address")
 		}
-
-		for _, addr := range opts.Addrs {
-			path := filepath.Join(config.PathToCache(opts.Globals.Chain), "monitors", addr+monitor.Ext)
-			if !file.FileExists(path) {
-				return validate.Usage("Run `chifra list {1}` before querying approvals.", addr, addr)
-			}
-		}
-
+		// No token contract validation needed for decache - addresses are used for pattern matching
+		// Multiple addresses are supported and treated as monitors for pattern matching
 	} else {
-		if len(opts.Addrs) == 0 {
-			return validate.Usage("You must specify at least two address")
+		// Normal token validation for non-decache operations
+		if opts.Approvals {
+			if opts.ByAcct {
+				return validate.Usage("The {0} option is not allowed with {1}.", "--by_acct", "--approvals")
+			}
+
+			if len(opts.Addrs) == 0 {
+				return validate.Usage("You must specify at least one address")
+			}
+
+			for _, addr := range opts.Addrs {
+				path := filepath.Join(config.PathToCache(opts.Globals.Chain), "monitors", addr+monitor.Ext)
+				if !file.FileExists(path) {
+					return validate.Usage("Run `chifra list {1}` before querying approvals.", addr, addr)
+				}
+			}
 
 		} else {
-			if opts.ByAcct {
-				if len(opts.Addrs) < 2 {
-					return validate.Usage("You must specify at least two addresses")
-				}
+			if len(opts.Addrs) == 0 {
+				return validate.Usage("You must specify at least two address")
 
-				// all but the last is assumed to be a token
-				for _, addr := range opts.Addrs[:len(opts.Addrs)-1] {
+			} else {
+				if opts.ByAcct {
+					if len(opts.Addrs) < 2 {
+						return validate.Usage("You must specify at least two addresses")
+					}
+
+					// all but the last is assumed to be a token
+					for _, addr := range opts.Addrs[:len(opts.Addrs)-1] {
+						if addr != base.FAKE_ETH_ADDRESS.Hex() {
+							err := opts.Conn.IsContractAtLatest(base.HexToAddress(addr))
+							if err != nil {
+								if errors.Is(err, rpc.ErrNotAContract) {
+									return validate.Usage("The value {0} is not a token contract.", addr)
+								}
+								return err
+							}
+						}
+					}
+				} else {
+					addr := opts.Addrs[0]
 					if addr != base.FAKE_ETH_ADDRESS.Hex() {
 						err := opts.Conn.IsContractAtLatest(base.HexToAddress(addr))
 						if err != nil {
@@ -74,17 +94,6 @@ func (opts *TokensOptions) validateTokens() error {
 							}
 							return err
 						}
-					}
-				}
-			} else {
-				addr := opts.Addrs[0]
-				if addr != base.FAKE_ETH_ADDRESS.Hex() {
-					err := opts.Conn.IsContractAtLatest(base.HexToAddress(addr))
-					if err != nil {
-						if errors.Is(err, rpc.ErrNotAContract) {
-							return validate.Usage("The value {0} is not a token contract.", addr)
-						}
-						return err
 					}
 				}
 			}
@@ -96,31 +105,34 @@ func (opts *TokensOptions) validateTokens() error {
 		return err
 	}
 
-	// Blocks are optional, but if they are present, they must be valid
-	if len(opts.Blocks) > 0 {
-		bounds, err := validate.ValidateIdentifiersWithBounds(
-			chain,
-			opts.Blocks,
-			validate.ValidBlockIdWithRangeAndDate,
-			1,
-			&opts.BlockIds,
-		)
+	// Block validation not needed for decache operations
+	if !opts.Globals.Decache {
+		// Blocks are optional, but if they are present, they must be valid
+		if len(opts.Blocks) > 0 {
+			bounds, err := validate.ValidateIdentifiersWithBounds(
+				chain,
+				opts.Blocks,
+				validate.ValidBlockIdWithRangeAndDate,
+				1,
+				&opts.BlockIds,
+			)
 
-		if err != nil {
-			if invalidLiteral, ok := err.(*validate.InvalidIdentifierLiteralError); ok {
-				return invalidLiteral
+			if err != nil {
+				if invalidLiteral, ok := err.(*validate.InvalidIdentifierLiteralError); ok {
+					return invalidLiteral
+				}
+
+				if errors.Is(err, validate.ErrTooManyRanges) {
+					return validate.Usage("Specify only a single block range at a time.")
+				}
+
+				return err
 			}
 
-			if errors.Is(err, validate.ErrTooManyRanges) {
-				return validate.Usage("Specify only a single block range at a time.")
+			latest := opts.Conn.GetLatestBlockNumber()
+			if bounds.First < (latest-250) && !opts.Conn.IsNodeArchive() {
+				return validate.Usage("The {0} requires {1}.", "query for historical state", "an archive node")
 			}
-
-			return err
-		}
-
-		latest := opts.Conn.GetLatestBlockNumber()
-		if bounds.First < (latest-250) && !opts.Conn.IsNodeArchive() {
-			return validate.Usage("The {0} requires {1}.", "query for historical state", "an archive node")
 		}
 	}
 

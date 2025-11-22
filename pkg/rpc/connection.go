@@ -1,8 +1,6 @@
 package rpc
 
 import (
-	"sync"
-
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/cache"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
@@ -13,10 +11,6 @@ import (
 type Connection struct {
 	Chain string
 	Store *cache.Store
-	// TODO: BOGUS - THIS IN MEMORY CACHE IS GOOD, BUT COULD BE BINARY FILE
-	balanceCache      map[string]*base.Wei
-	tokenBalanceCache map[string]*base.Wei
-	cacheMutex        sync.Mutex
 }
 
 func NewConnection(chain string, cacheEnabled bool, enabledMap map[walk.CacheType]bool) *Connection {
@@ -45,10 +39,8 @@ func newConnection(chain string, cacheEnabled bool, enabledMap map[walk.CacheTyp
 	}
 
 	ret := &Connection{
-		Chain:             chain,
-		Store:             store,
-		balanceCache:      make(map[string]*base.Wei),
-		tokenBalanceCache: make(map[string]*base.Wei),
+		Chain: chain,
+		Store: store,
 	}
 
 	if store != nil && store.Enabled() {

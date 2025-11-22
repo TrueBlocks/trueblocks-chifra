@@ -15,7 +15,6 @@ import (
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/ranges"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/rpc"
-	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/rpc/query"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/topics"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/utils"
@@ -239,7 +238,7 @@ func (opts *TokensOptions) HandleApprovals(rCtx *output.RenderCtx) error {
 			apps := make([]approvalKey, 0, len(approvals))
 			for key, info := range approvals {
 				// Query the current allowance for this approval
-				currentAllowance, err := opts.getAllowanceAtBlock(key.Token, key.Owner, key.Spender, lastBlock)
+				currentAllowance, err := opts.Conn.GetAllowanceAtToken(key.Token, key.Owner, key.Spender, approvals[key].LastBlock)
 				if err != nil {
 					logger.Warn("Failed to get allowance for", key.Owner.Hex(), "->", key.Spender.Hex(), "on", key.Token.Hex(), ":", err)
 					continue
@@ -290,41 +289,4 @@ func (opts *TokensOptions) HandleApprovals(rCtx *output.RenderCtx) error {
 	}
 
 	return output.StreamMany(rCtx, fetchData, opts.Globals.OutputOptsWithExtra(extraOpts))
-}
-
-func (opts *TokensOptions) getAllowanceAtBlock(tokenAddr, owner, spender base.Address, blockNum base.Blknum) (*base.Wei, error) {
-	funcSig := "0xdd62ed3e"
-	data := funcSig + owner.Pad32() + spender.Pad32()
-
-	var blockParam string
-	if blockNum == 0 {
-		blockParam = "latest"
-	} else {
-		blockParam = fmt.Sprintf("0x%x", blockNum)
-	}
-
-	payloads := []query.BatchPayload{{
-		Key: "allowance",
-		Payload: &query.Payload{
-			Method: "eth_call",
-			Params: query.Params{
-				map[string]any{
-					"to":   tokenAddr.Hex(),
-					"data": data,
-				},
-				blockParam,
-			},
-		},
-	}}
-	output, err := query.QueryBatch[string](opts.Conn.Chain, payloads)
-	if err != nil {
-		return base.NewWei(0), err
-	}
-	var allowance *base.Wei
-	if output["allowance"] == nil {
-		allowance = base.NewWei(0)
-	} else {
-		allowance = base.HexToWei(*output["allowance"])
-	}
-	return allowance, nil
 }

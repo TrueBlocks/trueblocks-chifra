@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/rpc/query"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/walk"
@@ -150,19 +151,18 @@ func (conn *Connection) GetState(fieldBits types.StatePart, address base.Address
 	return state, err
 }
 
-// GetBalanceAt returns a balance for an address at a block
-func (conn *Connection) GetBalanceAt(addr base.Address, bn base.Blknum) (*base.Wei, error) {
-	var balance *base.Wei
-
-	// TODO: BOGUS - THIS IN MEMORY CACHE IS GOOD, BUT COULD BE BINARY FILE
-	key := fmt.Sprintf("%s|%s|%d", conn.Chain, addr.Hex(), bn)
-	conn.cacheMutex.Lock()
-	var ok bool
-	if balance, ok = conn.balanceCache[key]; ok {
-		conn.cacheMutex.Unlock()
-		return balance, nil
+// getBalanceAt returns a balance for an address at a block
+func (conn *Connection) getBalanceAt(addr base.Address, bn base.Blknum) (*base.Wei, error) {
+	state := &types.State{
+		Address:     addr,
+		BlockNumber: bn,
+		Parts:       types.Balance,
 	}
-	conn.cacheMutex.Unlock()
+	if err := conn.ReadFromCache(state); err == nil {
+		return &state.Balance, nil
+	}
+
+	var balance *base.Wei
 
 	if ec, err := conn.getClient(); err != nil {
 		var zero base.Wei
@@ -176,10 +176,12 @@ func (conn *Connection) GetBalanceAt(addr base.Address, bn base.Blknum) (*base.W
 		}
 	}
 
-	// TODO: BOGUS - THIS IN MEMORY CACHE IS GOOD, BUT COULD BE BINARY FILE
-	conn.cacheMutex.Lock()
-	conn.balanceCache[key] = balance
-	conn.cacheMutex.Unlock()
+	// Write to disk cache using State type
+	state.Balance = *balance
+	state.Timestamp = conn.GetBlockTimestamp(bn)
+	if err := conn.WriteToCache(state, walk.Cache_State, state.Timestamp); err != nil {
+		logger.Warn("Failed to write ETH balance to cache:", err)
+	}
 
 	return balance, nil
 }
