@@ -16,6 +16,7 @@ import (
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/ranges"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/rpc"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/topics"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/utils"
 )
@@ -35,7 +36,11 @@ func (opts *ExportOptions) HandleLogs(rCtx *output.RenderCtx, monitorArray []mon
 		for _, mon := range monitorArray {
 			addrArray = append(addrArray, mon.Address)
 		}
-		logFilter := rpc.NewLogFilter(opts.Emitter, opts.Topic)
+		topicsToFilter := opts.Topic
+		if opts.Approvals {
+			topicsToFilter = []string{topics.ApprovalTopic.Hex()}
+		}
+		logFilter := rpc.NewLogFilter(opts.Emitter, topicsToFilter)
 
 		for _, mon := range monitorArray {
 			if sliceOfMaps, cnt, err := monitor.AsSliceOfItemMaps[[]*types.Log](&mon, filter, filter.Reversed); err != nil {

@@ -10,24 +10,48 @@ import (
 	"sort"
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/articulate"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/monitor"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/ranges"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/rpc"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/topics"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/utils"
 )
 
 func (opts *ExportOptions) HandleShow(rCtx *output.RenderCtx, monitorArray []monitor.Monitor) error {
+	return opts.handleShowCore(rCtx, monitorArray, nil)
+}
+
+func (opts *ExportOptions) handleShowCore(rCtx *output.RenderCtx, monitorArray []monitor.Monitor, logFilter *rpc.LogFilter) error {
 	fetchData := func(modelChan chan types.Modeler, errorChan chan error) {
 		abiCache := articulate.NewAbiCache(opts.Conn, rCtx.IsStreaming(), opts.Articulate)
-		filter := types.NewFilter(
-			opts.Reversed,
-			opts.Reverted,
-			opts.Fourbytes,
-			ranges.BlockRange{First: opts.FirstBlock, Last: opts.LastBlock},
-			ranges.RecordRange{First: opts.FirstRecord, Last: opts.GetMax()},
-		)
+
+		var filter *types.AppearanceFilter
+		if opts.Approvals {
+			filter = types.NewFilter(
+				opts.Reversed,
+				false,
+				[]string{topics.ApprovalFourbyte},
+				ranges.BlockRange{First: opts.FirstBlock, Last: opts.LastBlock},
+				ranges.RecordRange{First: opts.FirstRecord, Last: opts.GetMax()},
+			)
+		} else {
+			filter = types.NewFilter(
+				opts.Reversed,
+				opts.Reverted,
+				opts.Fourbytes,
+				ranges.BlockRange{First: opts.FirstBlock, Last: opts.LastBlock},
+				ranges.RecordRange{First: opts.FirstRecord, Last: opts.GetMax()},
+			)
+		}
+
+		addrArray := make([]base.Address, 0, len(monitorArray))
+		for _, mon := range monitorArray {
+			addrArray = append(addrArray, mon.Address)
+		}
 
 		for _, mon := range monitorArray {
 			if sliceOfMaps, cnt, err := monitor.AsSliceOfItemMaps[types.Transaction](&mon, filter, filter.Reversed); err != nil {
@@ -64,9 +88,45 @@ func (opts *ExportOptions) HandleShow(rCtx *output.RenderCtx, monitorArray []mon
 						if tx, err := opts.Conn.GetTransactionByAppearance(&app, false); err != nil {
 							return err
 						} else {
-							passes := filter.PassesTxFilter(tx)
-							if passes {
-								*value = *tx
+							if opts.Approvals {
+								passesFourByte := filter.PassesTxFilter(tx)
+								hasApprovalLogs := false
+								if tx.Receipt != nil {
+									filteredLogs := make([]types.Log, 0, len(tx.Receipt.Logs))
+									hasEmitterLogs := len(opts.Emitter) == 0
+									for _, log := range tx.Receipt.Logs {
+										if !hasEmitterLogs {
+											for _, emitter := range opts.Emitter {
+												if log.Address.Hex() == emitter {
+													hasEmitterLogs = true
+													break
+												}
+											}
+										}
+
+										if filter.PassesLogFilter(&log, addrArray) && logFilter.PassesFilter(&log) {
+											log.BlockHash = tx.BlockHash
+											log.BlockNumber = tx.BlockNumber
+											log.TransactionHash = tx.Hash
+											log.TransactionIndex = tx.TransactionIndex
+											filteredLogs = append(filteredLogs, log)
+											hasApprovalLogs = true
+										}
+									}
+
+									shouldInclude := (passesFourByte && hasEmitterLogs) || hasApprovalLogs
+									if shouldInclude {
+										tx.Receipt.Logs = filteredLogs
+										*value = *tx
+									}
+								} else if passesFourByte && len(opts.Emitter) == 0 {
+									*value = *tx
+								}
+							} else {
+								passes := filter.PassesTxFilter(tx)
+								if passes {
+									*value = *tx
+								}
 							}
 							if bar != nil {
 								bar.Tick()
@@ -87,12 +147,14 @@ func (opts *ExportOptions) HandleShow(rCtx *output.RenderCtx, monitorArray []mon
 
 					items := make([]*types.Transaction, 0, len(thisMap))
 					for _, tx := range thisMap {
-						if opts.Articulate {
-							if err = abiCache.ArticulateTransaction(tx); err != nil {
-								errorChan <- err // continue even on error
+						if !tx.BlockHash.IsZero() {
+							if opts.Articulate {
+								if err := abiCache.ArticulateTransaction(tx); err != nil {
+									errorChan <- err // continue even on error
+								}
 							}
+							items = append(items, tx)
 						}
-						items = append(items, tx)
 					}
 
 					sort.Slice(items, func(i, j int) bool {

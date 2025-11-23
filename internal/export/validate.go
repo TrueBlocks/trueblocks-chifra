@@ -280,6 +280,10 @@ func (opts *ExportOptions) tooMany() ([]string, bool) {
 		return []string{}, false
 	}
 
+	if len(which) == 2 && m["--logs"] && m["--approvals"] {
+		return []string{}, false
+	}
+
 	return which, cnt > 1
 }
 
