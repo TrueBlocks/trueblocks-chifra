@@ -12,9 +12,7 @@ import (
 // are required because our Json encodes big.Ints as strings. Note that
 type Wei big.Int
 
-var (
-	ZeroWei = NewWei(0)
-)
+var ZeroWei = NewWei(0)
 
 func NewWei(x int64) *Wei {
 	return (*Wei)(big.NewInt(x))
@@ -256,6 +254,23 @@ func (w *Wei) ToFloatString(decimals int) string {
 
 func ToFloat(wei *Wei) *Float {
 	return ToFloatWithDecimals(wei, 18)
+}
+
+// WeiFromFloatString converts a human-readable amount string to Wei using the specified decimals.
+func WeiFromFloatString(amountStr string, decimals int) (*Wei, error) {
+	if amountStr == "" || amountStr == "0" {
+		return NewWei(0), nil
+	}
+	amountFloat := NewFloat(0)
+	if _, ok := amountFloat.SetString(amountStr); !ok {
+		return nil, fmt.Errorf("invalid amount string: %s", amountStr)
+	}
+	mulInt := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(decimals)), nil)
+	mul := (*Float)(new(big.Float).SetInt(mulInt))
+	result := NewFloat(0).Mul(amountFloat, mul)
+	weiBigInt := new(big.Int)
+	result.ToBigFloat().Int(weiBigInt)
+	return (*Wei)(weiBigInt), nil
 }
 
 func ToFloatWithDecimals(wei *Wei, decimals int) *Float {

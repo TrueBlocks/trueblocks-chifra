@@ -97,7 +97,7 @@ func TestToEther(t *testing.T) {
 
 	v1, _ := new(Wei).SetString("123456789012345678", 10)
 	v2, _ := new(Wei).SetString("1234567890123456789", 10)
-	var tests = []testCase{
+	tests := []testCase{
 		{NewWei(0), "0"},
 		{NewWei(1), "0.000000000000000001"},
 		{v1, "0.123456789012345678"},
@@ -669,6 +669,112 @@ func TestToFloatWithDecimals(t *testing.T) {
 			result := ToFloatWithDecimals(tt.value, tt.decimals).Text('f', -1)
 			if result != tt.expected {
 				t.Errorf("ToFloatWithDecimals(%d) = %s, want %s", tt.decimals, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestWeiFromFloatString(t *testing.T) {
+	tests := []struct {
+		name       string
+		amountStr  string
+		decimals   int
+		expected   string
+		shouldFail bool
+	}{
+		{
+			name:      "20 DAI with 18 decimals",
+			amountStr: "20",
+			decimals:  18,
+			expected:  "20000000000000000000",
+		},
+		{
+			name:      "1 ETH with 18 decimals",
+			amountStr: "1",
+			decimals:  18,
+			expected:  "1000000000000000000",
+		},
+		{
+			name:      "7500 USDC with 6 decimals",
+			amountStr: "7500",
+			decimals:  6,
+			expected:  "7500000000",
+		},
+		{
+			name:      "0.5 token with 18 decimals",
+			amountStr: "0.5",
+			decimals:  18,
+			expected:  "500000000000000000",
+		},
+		{
+			name:      "1000 tokens with 0 decimals",
+			amountStr: "1000",
+			decimals:  0,
+			expected:  "1000",
+		},
+		{
+			name:      "Zero amount",
+			amountStr: "0",
+			decimals:  18,
+			expected:  "0",
+		},
+		{
+			name:      "Empty string",
+			amountStr: "",
+			decimals:  18,
+			expected:  "0",
+		},
+		{
+			name:       "Invalid amount string",
+			amountStr:  "not-a-number",
+			decimals:   18,
+			shouldFail: true,
+		},
+		{
+			name:      "Very small amount",
+			amountStr: "0.000000000000000001",
+			decimals:  18,
+			expected:  "1",
+		},
+		{
+			name:      "Large amount",
+			amountStr: "123456.789012",
+			decimals:  6,
+			expected:  "123456789012",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := WeiFromFloatString(tt.amountStr, tt.decimals)
+
+			if tt.shouldFail {
+				if err == nil {
+					t.Errorf("WeiFromFloatString(%s, %d) expected error, got nil", tt.amountStr, tt.decimals)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("WeiFromFloatString(%s, %d) unexpected error: %v", tt.amountStr, tt.decimals, err)
+				return
+			}
+
+			if result.String() != tt.expected {
+				t.Errorf("WeiFromFloatString(%s, %d) = %s, want %s", tt.amountStr, tt.decimals, result.String(), tt.expected)
+			}
+
+			// Verify round-trip: Wei -> Float -> Wei
+			if tt.amountStr != "" && tt.amountStr != "0" {
+				floatStr := result.ToFloatString(tt.decimals)
+				roundTrip, err := WeiFromFloatString(floatStr, tt.decimals)
+				if err != nil {
+					t.Errorf("Round-trip failed: %v", err)
+					return
+				}
+				if !result.Equal(roundTrip) {
+					t.Errorf("Round-trip mismatch: original=%s, round-trip=%s", result.String(), roundTrip.String())
+				}
 			}
 		})
 	}
