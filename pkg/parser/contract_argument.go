@@ -1,14 +1,13 @@
 package parser
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
-	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 	"github.com/alecthomas/participle/v2/lexer"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
 )
 
 // ContractArgument represents input to the smart contract method call, e.g.
@@ -52,71 +51,50 @@ func (a *ContractArgument) Interface() any {
 }
 
 func (a *ContractArgument) AbiType(abiType *abi.Type) (any, error) {
-	if abiType.T == abi.FixedBytesTy {
-		// We only support fixed bytes as hashes
-		if a.Hex == nil {
-			return nil, wrongTypeError("hash", a.Tokens[0], a.Interface())
-		}
-		hex := *a.Hex.String
-		if len(hex) == 0 {
-			return nil, errors.New("no value for fixed-size bytes argument")
-		}
-
-		arrayInterface, err := abi.ReadFixedBytes(*abiType, base.Hex2Bytes(hex[2:]))
-		if err != nil {
-			return nil, err
-		}
-		return arrayInterface, nil
-	}
-
-	if abiType.T == abi.IntTy {
-		if a.Number == nil {
-			return nil, wrongTypeError(abiType.String(), a.Tokens[0], a.Interface())
-		}
-		// We have to convert int64 to a correct int type, otherwise go-ethereum will
-		// return an error. It's not needed for uints, because they handle them differently.
-		if a.Number.Big != nil {
-			return a.Number.Interface(), nil
-		}
-
-		converted, err := a.Number.Convert(abiType)
-		if err != nil {
-			return nil, err
-		}
-		return converted, nil
-	}
-
-	if abiType.T == abi.AddressTy {
-		if a.EnsAddr != nil {
-			return a.EnsAddr, nil
-		}
-
-		// We need go-ethereum's Address type, not ours
-		if a.Hex == nil {
-			return nil, wrongTypeError(abiType.String(), a.Tokens[0], a.Interface())
-		}
-		address := a.Hex.Address
-		if address == nil {
-			return nil, errors.New("expected address, but got hash instead (check length)")
-		}
-
-		addressHex := common.HexToAddress(address.Hex())
-		return addressHex, nil
-	}
-
-	// Below checks are for nice errors only
-	if (abiType.T == abi.UintTy && a.Number == nil) ||
-		(abiType.T == abi.StringTy && a.String == nil) ||
-		(abiType.T == abi.BoolTy && a.Boolean == nil) {
+	// Type checking with nice error messages before conversion
+	if abiType.T == abi.AddressTy && (a.Hex == nil || a.Hex.Address == nil) && a.EnsAddr == nil {
 		return nil, wrongTypeError(abiType.String(), a.Tokens[0], a.Interface())
 	}
+	if abiType.T == abi.UintTy && a.Number == nil {
+		return nil, wrongTypeError(abiType.String(), a.Tokens[0], a.Interface())
+	}
+	if abiType.T == abi.IntTy && a.Number == nil {
+		return nil, wrongTypeError(abiType.String(), a.Tokens[0], a.Interface())
+	}
+	if abiType.T == abi.StringTy && a.String == nil {
+		return nil, wrongTypeError(abiType.String(), a.Tokens[0], a.Interface())
+	}
+	if abiType.T == abi.BoolTy && a.Boolean == nil {
+		return nil, wrongTypeError(abiType.String(), a.Tokens[0], a.Interface())
+	}
+	if abiType.T == abi.FixedBytesTy && a.Hex == nil {
+		return nil, wrongTypeError("hash", a.Tokens[0], a.Interface())
+	}
 
-	return a.Interface(), nil
+	// Delegate to Parameter.AbiType for all conversions
+	param := types.Parameter{
+		ParameterType: abiType.String(),
+		Value:         fmt.Sprintf("%v", a.Interface()),
+	}
+
+	result, err := param.AbiType(abiType)
+	if err != nil {
+		// Wrap error with token context for better error messages
+		if len(a.Tokens) > 0 {
+			return nil, wrongTypeError(abiType.String(), a.Tokens[0], a.Interface())
+		}
+		return nil, err
+	}
+
+	return result, nil
 }
 
 // wrongTypeError returns user-friendly errors
 func wrongTypeError(expectedType string, token lexer.Token, value any) error {
 	t := reflect.TypeOf(value)
+	if t == nil {
+		return fmt.Errorf("expected %s, but got nil \"%s\"", expectedType, token)
+	}
 	typeName := t.String()
 	kind := t.Kind()
 	// kinds between this range are all (u)int, called "integer" in Solidity

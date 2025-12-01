@@ -8,10 +8,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"math/big"
+	"reflect"
+	"strings"
 	"testing"
 
-	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 )
 
 // Helper function to convert various numeric types to float64 for JSON comparison
@@ -473,4 +478,238 @@ func Test_Parameter_Value_Summary(t *testing.T) {
 	t.Log("   - Component structure is preserved in both JSON and binary cache")
 	t.Log("   - Component values follow same rules as parent Parameter values")
 	t.Log("   - This confirms the ABI structure is correctly cached")
+}
+
+// Test ABI for parameter conversion tests
+const testAbiSource = `
+[
+	{ "type" : "function", "name" : "bytes4", "inputs" : [ { "name" : "inputs", "type" : "bytes4" } ] },
+	{ "type" : "function", "name" : "bytes32", "inputs" : [ { "name" : "inputs", "type" : "bytes32" } ] },
+	{ "type" : "function", "name" : "int8", "inputs" : [ { "name" : "inputs", "type" : "int8" } ] },
+	{ "type" : "function", "name" : "int64", "inputs" : [ { "name" : "inputs", "type" : "int64" } ] },
+	{ "type" : "function", "name" : "int256", "inputs" : [ { "name" : "inputs", "type" : "int256" } ] },
+	{ "type" : "function", "name" : "uint8", "inputs" : [ { "name" : "inputs", "type" : "uint8" } ] },
+	{ "type" : "function", "name" : "uint256", "inputs" : [ { "name" : "inputs", "type" : "uint256" } ] },
+	{ "type" : "function", "name" : "address", "inputs" : [ { "name" : "inputs", "type" : "address" } ] },
+	{ "type" : "function", "name" : "bool", "inputs" : [ { "name" : "inputs", "type" : "bool" } ] },
+	{ "type" : "function", "name" : "string", "inputs" : [ { "name" : "inputs", "type" : "string" } ] }
+]
+`
+
+func TestParameter_AbiType(t *testing.T) {
+	testAbi, err := abi.JSON(strings.NewReader(testAbiSource))
+	if err != nil {
+		panic(err)
+	}
+
+	int256 := new(big.Int)
+	_, ok := int256.SetString("-57896044618658097711785492504343953926634992332820282019728792003956564819968", 10)
+	if !ok {
+		t.Fatal("cannot set int256 value")
+	}
+
+	uint256 := new(big.Int)
+	_, ok = uint256.SetString("115792089237316195423570985008687907853269984665640564039457584007913129639935", 10)
+	if !ok {
+		t.Fatal("cannot set uint256 value")
+	}
+
+	tests := []struct {
+		name      string
+		param     Parameter
+		abiType   *abi.Type
+		want      any
+		wantErr   bool
+		checkFunc func(got, want any) bool
+	}{
+		{
+			name: "bytes4 from hex string",
+			param: Parameter{
+				ParameterType: "bytes4",
+				Value:         "0x80ac58cd",
+			},
+			abiType: &testAbi.Methods["bytes4"].Inputs[0].Type,
+			want:    [4]byte{128, 172, 88, 205},
+		},
+		{
+			name: "bytes32 from hex string",
+			param: Parameter{
+				ParameterType: "bytes32",
+				Value:         "0x00120aa407bdbff1d93ea98dafc5f1da56b589b427167ec414bccbe0cfdfd573",
+			},
+			abiType: &testAbi.Methods["bytes32"].Inputs[0].Type,
+			want:    [32]byte{0, 18, 10, 164, 7, 189, 191, 241, 217, 62, 169, 141, 175, 197, 241, 218, 86, 181, 137, 180, 39, 22, 126, 196, 20, 188, 203, 224, 207, 223, 213, 115},
+		},
+		{
+			name: "int8 from string",
+			param: Parameter{
+				ParameterType: "int8",
+				Value:         "-128",
+			},
+			abiType: &testAbi.Methods["int8"].Inputs[0].Type,
+			want:    int8(-128),
+		},
+		{
+			name: "int64 from string",
+			param: Parameter{
+				ParameterType: "int64",
+				Value:         "-9223372036854775808",
+			},
+			abiType: &testAbi.Methods["int64"].Inputs[0].Type,
+			want:    int64(-9223372036854775808),
+		},
+		{
+			name: "int256 from string",
+			param: Parameter{
+				ParameterType: "int256",
+				Value:         "-57896044618658097711785492504343953926634992332820282019728792003956564819968",
+			},
+			abiType: &testAbi.Methods["int256"].Inputs[0].Type,
+			want:    int256,
+		},
+		{
+			name: "uint8 from string",
+			param: Parameter{
+				ParameterType: "uint8",
+				Value:         "255",
+			},
+			abiType: &testAbi.Methods["uint8"].Inputs[0].Type,
+			want:    uint64(255),
+		},
+		{
+			name: "uint256 from string",
+			param: Parameter{
+				ParameterType: "uint256",
+				Value:         "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+			},
+			abiType: &testAbi.Methods["uint256"].Inputs[0].Type,
+			want:    uint256,
+		},
+		{
+			name: "address from hex string",
+			param: Parameter{
+				ParameterType: "address",
+				Value:         "0xf503017d7baf7fbc0fff7492b751025c6a78179b",
+			},
+			abiType: &testAbi.Methods["address"].Inputs[0].Type,
+			want:    common.HexToAddress("0xf503017d7baf7fbc0fff7492b751025c6a78179b"),
+		},
+		{
+			name: "bool true from string",
+			param: Parameter{
+				ParameterType: "bool",
+				Value:         "true",
+			},
+			abiType: &testAbi.Methods["bool"].Inputs[0].Type,
+			want:    true,
+		},
+		{
+			name: "bool false from string",
+			param: Parameter{
+				ParameterType: "bool",
+				Value:         "false",
+			},
+			abiType: &testAbi.Methods["bool"].Inputs[0].Type,
+			want:    false,
+		},
+		{
+			name: "string from string",
+			param: Parameter{
+				ParameterType: "string",
+				Value:         "hello world",
+			},
+			abiType: &testAbi.Methods["string"].Inputs[0].Type,
+			want:    "hello world",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.param.AbiType(tt.abiType)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Parameter.AbiType() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.checkFunc != nil {
+				if !tt.checkFunc(got, tt.want) {
+					t.Errorf("Parameter.AbiType() = %v, want %v", got, tt.want)
+				}
+			} else if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Parameter.AbiType() = %v (type %T), want %v (type %T)", got, got, tt.want, tt.want)
+			}
+		})
+	}
+}
+
+func TestParameter_AbiType_Errors(t *testing.T) {
+	testAbi, err := abi.JSON(strings.NewReader(testAbiSource))
+	if err != nil {
+		panic(err)
+	}
+
+	tests := []struct {
+		name      string
+		param     Parameter
+		abiType   *abi.Type
+		wantError string
+	}{
+		{
+			name: "nil value",
+			param: Parameter{
+				ParameterType: "address",
+				Value:         nil,
+			},
+			abiType:   &testAbi.Methods["address"].Inputs[0].Type,
+			wantError: "parameter value is nil",
+		},
+		{
+			name: "empty string value",
+			param: Parameter{
+				ParameterType: "address",
+				Value:         "",
+			},
+			abiType:   &testAbi.Methods["address"].Inputs[0].Type,
+			wantError: "parameter value is empty",
+		},
+		{
+			name: "invalid integer",
+			param: Parameter{
+				ParameterType: "uint256",
+				Value:         "not a number",
+			},
+			abiType:   &testAbi.Methods["uint256"].Inputs[0].Type,
+			wantError: "invalid unsigned integer value",
+		},
+		{
+			name: "invalid boolean",
+			param: Parameter{
+				ParameterType: "bool",
+				Value:         "maybe",
+			},
+			abiType:   &testAbi.Methods["bool"].Inputs[0].Type,
+			wantError: "invalid boolean value",
+		},
+		{
+			name: "address without 0x prefix",
+			param: Parameter{
+				ParameterType: "address",
+				Value:         "f503017d7baf7fbc0fff7492b751025c6a78179b",
+			},
+			abiType:   &testAbi.Methods["address"].Inputs[0].Type,
+			wantError: "expected hex address",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := tt.param.AbiType(tt.abiType)
+			if err == nil {
+				t.Error("Parameter.AbiType() expected error, got nil")
+				return
+			}
+			if !strings.Contains(err.Error(), tt.wantError) {
+				t.Errorf("Parameter.AbiType() error = %v, want error containing %q", err, tt.wantError)
+			}
+		})
+	}
 }

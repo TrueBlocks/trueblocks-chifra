@@ -11,8 +11,14 @@ package types
 // EXISTING_CODE
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"math/big"
+	"strings"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 )
@@ -278,6 +284,110 @@ func parametersToMap(params []Parameter) (result map[string]any) {
 		result[param.DisplayName(index)] = param.Value
 	}
 	return
+}
+
+// AbiType converts the Parameter's Value to the proper Go type for ABI encoding.
+// The Value field is expected to be a string (as it comes from Wails or other sources).
+func (p *Parameter) AbiType(abiType *abi.Type) (any, error) {
+	// Convert Value to string
+	var valueStr string
+	switch v := p.Value.(type) {
+	case string:
+		valueStr = v
+	case nil:
+		return nil, errors.New("parameter value is nil")
+	default:
+		valueStr = fmt.Sprintf("%v", v)
+	}
+
+	if valueStr == "" {
+		return nil, errors.New("parameter value is empty")
+	}
+
+	// Handle fixed bytes (e.g., bytes32)
+	if abiType.T == abi.FixedBytesTy {
+		if !strings.HasPrefix(valueStr, "0x") {
+			return nil, fmt.Errorf("expected hex string for %s, got: %s", abiType.String(), valueStr)
+		}
+		arrayInterface, err := abi.ReadFixedBytes(*abiType, base.Hex2Bytes(valueStr[2:]))
+		if err != nil {
+			return nil, err
+		}
+		return arrayInterface, nil
+	}
+
+	// Handle integers (int, int8, int16, ... int256)
+	if abiType.T == abi.IntTy {
+		bigInt := new(big.Int)
+		if _, ok := bigInt.SetString(valueStr, 10); !ok {
+			return nil, fmt.Errorf("invalid integer value: %s", valueStr)
+		}
+
+		// Convert to appropriate int size
+		switch abiType.Size {
+		case 8:
+			return int8(bigInt.Int64()), nil
+		case 16:
+			return int16(bigInt.Int64()), nil
+		case 32:
+			return int32(bigInt.Int64()), nil
+		case 64:
+			return bigInt.Int64(), nil
+		default:
+			// For int128, int256, etc., return *big.Int
+			return bigInt, nil
+		}
+	}
+
+	// Handle unsigned integers (uint, uint8, uint16, ... uint256)
+	if abiType.T == abi.UintTy {
+		bigInt := new(big.Int)
+		if _, ok := bigInt.SetString(valueStr, 10); !ok {
+			return nil, fmt.Errorf("invalid unsigned integer value: %s", valueStr)
+		}
+
+		// For sizes <= 64 bits, convert to uint type
+		// For larger sizes, keep as *big.Int
+		if abiType.Size <= 64 {
+			return bigInt.Uint64(), nil
+		}
+		return bigInt, nil
+	}
+
+	// Handle addresses
+	if abiType.T == abi.AddressTy {
+		if !strings.HasPrefix(valueStr, "0x") {
+			return nil, fmt.Errorf("expected hex address, got: %s", valueStr)
+		}
+		return common.HexToAddress(valueStr), nil
+	}
+
+	// Handle booleans
+	if abiType.T == abi.BoolTy {
+		if valueStr == "true" {
+			return true, nil
+		} else if valueStr == "false" {
+			return false, nil
+		}
+		return nil, fmt.Errorf("invalid boolean value: %s", valueStr)
+	}
+
+	// Handle strings
+	if abiType.T == abi.StringTy {
+		return valueStr, nil
+	}
+
+	// Handle dynamic bytes
+	if abiType.T == abi.BytesTy {
+		if !strings.HasPrefix(valueStr, "0x") {
+			return nil, fmt.Errorf("expected hex string for bytes, got: %s", valueStr)
+		}
+		return base.Hex2Bytes(valueStr[2:]), nil
+	}
+
+	// TODO: Handle arrays, slices, tuples recursively using Components field
+
+	return nil, fmt.Errorf("unsupported type: %s", abiType.String())
 }
 
 // EXISTING_CODE

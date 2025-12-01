@@ -6,10 +6,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
-	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/utils"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/utils"
 )
 
 func TestParse_Encoding(t *testing.T) {
@@ -281,7 +282,7 @@ func TestArgument_AbiType(t *testing.T) {
 			args: args{
 				abiType: &testAbi.Methods["int256"].Inputs[0].Type,
 			},
-			want: int256,
+			want: int256.BigInt(),
 		},
 		{
 			name: "address argument",
