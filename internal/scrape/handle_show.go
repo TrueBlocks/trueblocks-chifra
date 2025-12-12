@@ -89,7 +89,7 @@ func (opts *ScrapeOptions) HandleScrape(rCtx *output.RenderCtx) error {
 	trapChannel := sigintTrap.Enable(sigintCtx, cancel, cleanOnQuit)
 	defer sigintTrap.Disable(trapChannel)
 
-	var blocks = make([]base.Blknum, 0, opts.BlockCnt)
+	blocks := make([]base.Blknum, 0, opts.BlockCnt)
 	_ = blocks // delint
 	var err error
 
@@ -114,7 +114,7 @@ func (opts *ScrapeOptions) HandleScrape(rCtx *output.RenderCtx) error {
 
 		// Fetch the meta data which tells us how far along the index is.
 		if bm.meta, err = opts.Conn.GetMetaData(testMode); err != nil {
-			var ErrFetchingMeta = fmt.Errorf("error fetching meta data: %s", err)
+			ErrFetchingMeta := fmt.Errorf("error fetching meta data: %s", err)
 			logger.Error(colors.BrightRed+ErrFetchingMeta.Error(), colors.Off)
 			goto PAUSE
 		}
@@ -130,7 +130,7 @@ func (opts *ScrapeOptions) HandleScrape(rCtx *output.RenderCtx) error {
 		// the index. In this case, the index is ahead of the chain. We go to sleep and
 		// try again later in the hopes that the chain catches up.
 		if !opts.DryRun && bm.meta.NextIndexHeight() > bm.meta.ChainHeight()+1 {
-			var ErrIndexAhead = fmt.Errorf(
+			ErrIndexAhead := fmt.Errorf(
 				"index (%d) is ahead of chain (%d)",
 				bm.meta.NextIndexHeight(),
 				bm.meta.ChainHeight(),
@@ -217,6 +217,20 @@ func (opts *ScrapeOptions) HandleScrape(rCtx *output.RenderCtx) error {
 					break
 				}
 				goto PAUSE
+			}
+
+			// Send completion notification if streaming context provided
+			if rCtx != nil && rCtx.IsStreaming() && bm.meta != nil {
+				event := &ScrapeCompletedEvent{
+					Chain: chain,
+					Meta:  bm.meta,
+				}
+				// Non-blocking send to prevent hanging scraper if channel full
+				select {
+				case rCtx.ModelChan <- event:
+				default:
+					// Monitor not listening, drop event
+				}
 			}
 		}
 

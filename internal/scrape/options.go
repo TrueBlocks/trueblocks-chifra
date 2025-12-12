@@ -28,6 +28,7 @@ import (
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/file"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/rpc"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/types"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/validate"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/walk"
 	// EXISTING_CODE
@@ -41,13 +42,15 @@ type ScrapeOptions struct {
 	Touch     base.Blknum                `json:"touch,omitempty"`     // First block to visit when scraping (snapped back to most recent snap_to_grid mark)
 	RunCount  uint64                     `json:"runCount,omitempty"`  // Run the scraper this many times, then quit
 	DryRun    bool                       `json:"dryRun,omitempty"`    // Show the configuration that would be applied if run,no changes are made
-	Notify    bool                       `json:"notify,omitempty"`    // Enable the notify feature
 	Settings  configtypes.ScrapeSettings `json:"settings,omitempty"`  // Configuration items for the scrape
 	Globals   globals.GlobalOptions      `json:"globals,omitempty"`   // The global options
 	Conn      *rpc.Connection            `json:"conn,omitempty"`      // The connection to the RPC server
 	BadFlag   error                      `json:"badFlag,omitempty"`   // An error flag if needed
 	// EXISTING_CODE
 	PublisherAddr base.Address `json:"-"`
+	// Notify enables HTTP-based notifications (DEPRECATED)
+	// DEPRECATED: This flag will be removed in a future version.
+	Notify bool `json:"notify,omitempty"` // Enable the notify feature
 	// EXISTING_CODE
 }
 
@@ -275,6 +278,23 @@ func getConfigCmdsFromArgs() map[string]string {
 		}
 	}
 	return configs
+}
+
+// ScrapeCompletedEvent is sent when a scrape run completes
+// This is a "wake up" signal to monitors - they track their own block state
+type ScrapeCompletedEvent struct {
+	Chain string
+	Meta  *types.MetaData
+}
+
+// Model implements types.Modeler interface for streaming events
+func (e *ScrapeCompletedEvent) Model(chain, format string, verbose bool, extraOpts map[string]any) types.Model {
+	return types.Model{
+		Data: map[string]any{
+			"chain": e.Chain,
+		},
+		Order: []string{"chain"},
+	}
 }
 
 // EXISTING_CODE

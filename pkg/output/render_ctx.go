@@ -23,7 +23,6 @@ func NewRenderContext() *RenderCtx {
 
 func NewStreamingContext() *RenderCtx {
 	rCtx := NewRenderContext()
-	// TODO: Should these be buffered channels? Issue #3821
 	rCtx.ModelChan = make(chan types.Modeler)
 	rCtx.ErrorChan = make(chan error)
 	return rCtx
