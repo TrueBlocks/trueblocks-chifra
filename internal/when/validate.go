@@ -9,6 +9,7 @@ import (
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/config"
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/identifiers"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/validate"
 )
 
@@ -68,6 +69,9 @@ func (opts *WhenOptions) validateWhen() error {
 
 	if len(opts.Blocks) == 0 {
 		if !opts.Timestamps {
+			if opts.Diff {
+				return validate.Usage("The {0} option requires at least one block range.", "--diff")
+			}
 			opts.List = true
 		}
 
@@ -80,6 +84,15 @@ func (opts *WhenOptions) validateWhen() error {
 			// Cannot have both block identifiers and --list
 			return validate.Usage("Please supply either {0} or the {1} option.", "block identifiers", "--list")
 
+		}
+	}
+
+	if opts.Diff {
+		if opts.List {
+			return validate.Usage("Please choose only one of {0}.", "--diff or --list")
+		}
+		if opts.Timestamps {
+			return validate.Usage("Please choose only one of {0}.", "--diff or --timestamps")
 		}
 	}
 
@@ -104,6 +117,14 @@ func (opts *WhenOptions) validateWhen() error {
 		}
 
 		return err
+	}
+
+	if opts.Diff {
+		for _, id := range opts.BlockIds {
+			if id.ModifierType != identifiers.Period {
+				return validate.Usage("The {0} option requires a period modifier (e.g., :weekly, :monthly) on the block range.", "--diff")
+			}
+		}
 	}
 
 	return opts.Globals.Validate()

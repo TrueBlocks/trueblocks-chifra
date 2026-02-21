@@ -137,9 +137,6 @@ func TestNormalizedLog_NonStandard(t *testing.T) {
 
 	expectedVal := value
 	gotVal := base.HexToWei(normLog.Data)
-	if err != nil {
-		t.Fatalf("failed to decode normalized data: %v", err)
-	}
 	if gotVal.Cmp(expectedVal) != 0 {
 		t.Errorf("expected value %s, got %s", expectedVal.Text(10), gotVal.Text(10))
 	}

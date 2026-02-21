@@ -25,6 +25,7 @@ type NamedBlock struct {
 	Timestamp   base.Timestamp   `json:"timestamp"`
 	Calcs       *NamedBlockCalcs `json:"calcs,omitempty"`
 	// EXISTING_CODE
+	NBlocks base.Blknum `json:"nBlocks,omitempty"`
 	// EXISTING_CODE
 }
 
@@ -50,6 +51,10 @@ func (s *NamedBlock) Model(chain, format string, verbose bool, extraOpts map[str
 		"timestamp",
 		"date",
 		"name",
+	}
+
+	if s.NBlocks > 0 {
+		order = append(order, "nBlocks")
 	}
 
 	if verbose {
@@ -97,6 +102,9 @@ func (s *NamedBlock) CalcMap(p *ModelProps) map[string]any {
 	}
 
 	// EXISTING_CODE
+	if s.NBlocks > 0 {
+		model["nBlocks"] = s.NBlocks
+	}
 	if p.Format == "json" {
 		if len(s.Name) > 0 {
 			model["name"] = s.Name

@@ -31,6 +31,7 @@ import (
 type WhenOptions struct {
 	Blocks     []string                 `json:"blocks,omitempty"`     // One or more dates, block numbers, hashes, or special named blocks (see notes)
 	BlockIds   []identifiers.Identifier `json:"blockIds,omitempty"`   // Block identifiers
+	Diff       bool                     `json:"diff,omitempty"`       // Show the number of blocks per period (requires a non-blockly period modifier on the block range)
 	List       bool                     `json:"list,omitempty"`       // Export a list of the 'special' blocks
 	Timestamps bool                     `json:"timestamps,omitempty"` // Display or process timestamps
 	Count      bool                     `json:"count,omitempty"`      // With --timestamps only, returns the number of timestamps in the cache
@@ -53,6 +54,7 @@ var defaultWhenOptions = WhenOptions{
 // testLog is used only during testing to export the options for this test case.
 func (opts *WhenOptions) testLog() {
 	logger.TestLog(len(opts.Blocks) > 0, "Blocks: ", opts.Blocks)
+	logger.TestLog(opts.Diff, "Diff: ", opts.Diff)
 	logger.TestLog(opts.List, "List: ", opts.List)
 	logger.TestLog(opts.Timestamps, "Timestamps: ", opts.Timestamps)
 	logger.TestLog(opts.Count, "Count: ", opts.Count)
@@ -92,6 +94,8 @@ func WhenFinishParseInternal(w io.Writer, values url.Values) *WhenOptions {
 				s := strings.Split(val, " ") // may contain space separated items
 				opts.Blocks = append(opts.Blocks, s...)
 			}
+		case "diff":
+			opts.Diff = true
 		case "list":
 			opts.List = true
 		case "timestamps":

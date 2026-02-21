@@ -61,6 +61,8 @@ func (opts *WhenOptions) WhenInternal(rCtx *output.RenderCtx) error {
 		err = opts.HandleList(rCtx)
 	} else if opts.Timestamps {
 		err = opts.HandleTimestamps(rCtx)
+	} else if opts.Diff {
+		err = opts.HandleDiff(rCtx)
 	} else {
 		err = opts.HandleShow(rCtx)
 	}

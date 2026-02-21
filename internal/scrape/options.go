@@ -67,7 +67,6 @@ func (opts *ScrapeOptions) testLog() {
 	logger.TestLog(opts.Touch != 0, "Touch: ", opts.Touch)
 	logger.TestLog(opts.RunCount != 0, "RunCount: ", opts.RunCount)
 	logger.TestLog(opts.DryRun, "DryRun: ", opts.DryRun)
-	logger.TestLog(opts.Notify, "Notify: ", opts.Notify)
 	opts.Settings.TestLog(opts.Globals.Chain, opts.Globals.TestMode)
 	opts.Conn.TestLog()
 	opts.Globals.TestLog()
@@ -114,8 +113,6 @@ func ScrapeFinishParseInternal(w io.Writer, values url.Values) *ScrapeOptions {
 			opts.RunCount = base.MustParseUint64(value[0])
 		case "dryRun":
 			opts.DryRun = true
-		case "notify":
-			opts.Notify = true
 		case "appsPerChunk":
 			configs[key] = value[0]
 		case "snapToGrid":

@@ -58,6 +58,7 @@ func init() {
 
 	whenCmd.Flags().SortFlags = false
 
+	whenCmd.Flags().BoolVarP(&whenPkg.GetOptions().Diff, "diff", "", false, `show the number of blocks per period (requires a non-blockly period modifier on the block range) (hidden)`)
 	whenCmd.Flags().BoolVarP(&whenPkg.GetOptions().List, "list", "l", false, `export a list of the 'special' blocks`)
 	whenCmd.Flags().BoolVarP(&whenPkg.GetOptions().Timestamps, "timestamps", "t", false, `display or process timestamps`)
 	whenCmd.Flags().BoolVarP(&whenPkg.GetOptions().Count, "count", "U", false, `with --timestamps only, returns the number of timestamps in the cache`)
@@ -67,6 +68,7 @@ func init() {
 	whenCmd.Flags().BoolVarP(&whenPkg.GetOptions().Update, "update", "u", false, `with --timestamps only, bring the timestamp database forward to the latest block`)
 	whenCmd.Flags().Uint64VarP(&whenPkg.GetOptions().Deep, "deep", "d", 0, `with --timestamps --check only, verifies every N timestamp directly from the chain (slow)`)
 	if !base.IsTestMode() {
+		_ = whenCmd.Flags().MarkHidden("diff")
 		_ = whenCmd.Flags().MarkHidden("truncate")
 	}
 	globals.InitGlobals("when", whenCmd, &whenPkg.GetOptions().Globals, capabilities)
