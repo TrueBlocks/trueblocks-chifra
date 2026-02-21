@@ -52,7 +52,22 @@ func deepSetByPath(structure *reflect.Value, path []string, value string) error 
 	}
 	for i := 0; i < fieldCount; i++ {
 		field := structType.Field(i)
-		if !strings.EqualFold(field.Name, path[0]) {
+		fieldName := field.Name
+		// Special case: handle backward compatibility for RPC provider
+		// TB_CHAINS_MAINNET_RPCPROVIDER (singular) should be treated like TB_CHAINS_MAINNET_RPCPROVIDERS (plural)
+		if strings.EqualFold(fieldName, "RpcProviders") && strings.EqualFold(path[0], "RPCPROVIDER") {
+			// Handle singular RPCPROVIDER by treating it as RPCPROVIDERS with a single value
+			fieldValue := structValue.Field(i)
+			if !fieldValue.CanSet() {
+				return fmt.Errorf("cannot set %s", field.Name)
+			}
+			// Create a slice with the single value
+			slice := reflect.MakeSlice(fieldValue.Type(), 1, 1)
+			slice.Index(0).SetString(value)
+			fieldValue.Set(slice)
+			return nil
+		}
+		if !strings.EqualFold(fieldName, path[0]) {
 			continue
 		}
 
@@ -81,6 +96,23 @@ func deepSetByPath(structure *reflect.Value, path []string, value string) error 
 			fieldValue.SetBool(b)
 		case reflect.String:
 			fieldValue.SetString(value)
+		case reflect.Slice:
+			// Handle slices (only string slices for now)
+			if fieldValue.Type().Elem().Kind() == reflect.String {
+				// Split comma-separated values for string slices
+				values := strings.Split(value, ",")
+				// Trim whitespace from each value
+				for i, v := range values {
+					values[i] = strings.TrimSpace(v)
+				}
+				slice := reflect.MakeSlice(fieldValue.Type(), len(values), len(values))
+				for i, v := range values {
+					slice.Index(i).SetString(v)
+				}
+				fieldValue.Set(slice)
+			} else {
+				return fmt.Errorf("unsupported slice type for %v", path)
+			}
 		case reflect.Map:
 			// When dealing with maps, we first have to obtain values for map key and map value
 			mapKey := reflect.ValueOf(strings.ToLower(path[1]))
