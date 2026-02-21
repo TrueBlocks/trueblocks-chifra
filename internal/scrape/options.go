@@ -286,6 +286,10 @@ type ScrapeCompletedEvent struct {
 
 // Model implements types.Modeler interface for streaming events
 func (e *ScrapeCompletedEvent) Model(chain, format string, verbose bool, extraOpts map[string]any) types.Model {
+	_ = chain
+	_ = format
+	_ = verbose
+	_ = extraOpts
 	return types.Model{
 		Data: map[string]any{
 			"chain": e.Chain,

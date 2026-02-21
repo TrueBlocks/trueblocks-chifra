@@ -364,9 +364,10 @@ func (p *Parameter) AbiType(abiType *abi.Type) (any, error) {
 
 	// Handle booleans
 	if abiType.T == abi.BoolTy {
-		if valueStr == "true" {
+		switch valueStr {
+		case "true":
 			return true, nil
-		} else if valueStr == "false" {
+		case "false":
 			return false, nil
 		}
 		return nil, fmt.Errorf("invalid boolean value: %s", valueStr)

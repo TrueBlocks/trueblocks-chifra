@@ -67,6 +67,7 @@ func scanCacheForAddressPattern(cachePath string, addrPatterns []string, isAppro
 	// For efficiency, we could scan only directories that match the first few chars of addresses,
 	// but for now we'll do a full walk since addresses can start with many different patterns
 	err := filepath.Walk(cachePath, func(path string, info os.FileInfo, err error) error {
+		_ = path
 		if err != nil {
 			return nil // Skip errors, continue scanning
 		}
@@ -138,6 +139,7 @@ func parseCacheFilename(filename string, isApprovals bool, addrPatterns []string
 
 // LocationsFromTokens is kept for backward compatibility but now uses pattern-based approach
 func LocationsFromTokens(conn *rpc.Connection, addresses []string, ids []identifiers.Identifier, includeApprovals bool) ([]cache.Locator, error) {
+	_ = ids
 	// For decache purposes, we ignore block IDs and scan for all matching addresses
 	scanMode := "tokens-only"
 	if includeApprovals {
