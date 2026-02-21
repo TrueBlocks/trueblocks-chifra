@@ -31,7 +31,6 @@ Flags:
   -l, --touch uint       first block to visit when scraping (snapped back to most recent snap_to_grid mark)
   -u, --run_count uint   run the scraper this many times, then quit
   -d, --dry_run          show the configuration that would be applied if run,no changes are made
-  -o, --notify           enable the notify feature
   -v, --verbose          enable verbose output
   -h, --help             display this help screen
 
