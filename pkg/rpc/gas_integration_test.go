@@ -1,3 +1,5 @@
+//go:build integration
+
 package rpc
 
 // Copyright 2021 The TrueBlocks Authors. All rights reserved.
