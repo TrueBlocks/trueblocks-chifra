@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/identifiers"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/logger"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/output"
@@ -53,19 +54,32 @@ func (opts *TracesOptions) HandleCount(rCtx *output.RenderCtx) error {
 				}
 
 				iterFunc := func(app types.Appearance, value *types.Transaction) error {
-					if tx, err := opts.Conn.GetTransactionByAppearance(&app, true); err != nil {
+					bn := base.Blknum(app.BlockNumber)
+					txid := base.Txnum(app.TransactionIndex)
+					hash, err := opts.Conn.GetTransactionHashByNumberAndID(bn, txid)
+					if err != nil {
 						delete(thisMap, app)
 						return fmt.Errorf("transaction at %s returned an error: %w", app.Orig(), err)
+					}
 
-					} else if tx == nil || len(tx.Traces) == 0 {
+					cnt, err := opts.Conn.GetTracesCount(hash.Hex())
+					if err != nil {
+						delete(thisMap, app)
+						return fmt.Errorf("transaction at %s returned an error: %w", app.Orig(), err)
+					}
+
+					if cnt == 0 {
 						delete(thisMap, app)
 						return fmt.Errorf("transaction at %s has no traces", app.Orig())
-
-					} else {
-						*value = *tx
-						bar.Tick()
-						return nil
 					}
+
+					value.BlockNumber = bn
+					value.TransactionIndex = txid
+					value.Hash = hash
+					value.Timestamp = opts.Conn.GetBlockTimestamp(bn)
+					value.Traces = make([]types.Trace, cnt)
+					bar.Tick()
+					return nil
 				}
 
 				iterErrorChan := make(chan error)
