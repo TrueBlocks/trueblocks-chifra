@@ -7,6 +7,7 @@ package index
 import (
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 
@@ -109,7 +110,6 @@ func OpenBloom(path string, check bool) (Bloom, error) {
 		return bl, errors.New("required bloom file (" + path + ") missing")
 	}
 
-	bl.SizeOnDisc = file.FileSize(path)
 	if bl.Range, err = ranges.RangeFromFilenameE(path); err != nil {
 		return bl, err
 	}
@@ -117,6 +117,13 @@ func OpenBloom(path string, check bool) (Bloom, error) {
 	if bl.File, err = os.OpenFile(path, os.O_RDONLY, 0644); err != nil {
 		return bl, err
 	}
+	// Size the opened file, not the path, which an atomic rewrite may have replaced.
+	info, err := bl.File.Stat()
+	if err != nil {
+		bl.Close()
+		return bl, err
+	}
+	bl.SizeOnDisc = info.Size()
 
 	_, _ = bl.File.Seek(0, io.SeekStart)        // already true, but can't hurt
 	if err = bl.readHeader(check); err != nil { // Note that it may not find a header, but it leaves the file pointer pointing to the count
@@ -127,9 +134,20 @@ func OpenBloom(path string, check bool) (Bloom, error) {
 		return bl, err
 	}
 
+	// IsMember treats short reads as misses, so a truncated bloom would silently hide hits.
+	if want := expectedBloomFileSize(bl.HeaderSize, bl.Count); bl.SizeOnDisc != want {
+		bl.Close()
+		return bl, fmt.Errorf("%w: %s size %d want %d", ErrCorruptBloom, path, bl.SizeOnDisc, want)
+	}
+
 	bl.Blooms = make([]bloomBytes, 0, bl.Count)
 	_, _ = bl.File.Seek(int64(bl.HeaderSize), io.SeekStart) // Point to the start of Count
 	return bl, nil
+}
+
+// expectedBloomFileSize is the header, the uint32 count, then count (uint32 NInserted, bytes) pairs.
+func expectedBloomFileSize(headerSize int64, count uint32) int64 {
+	return headerSize + 4 + int64(count)*(4+BLOOM_WIDTH_IN_BYTES)
 }
 
 // Close closes the file if it's opened

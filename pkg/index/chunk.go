@@ -59,6 +59,10 @@ func OpenChunk(path string, check bool) (chunk Chunk, err error) {
 	}
 
 	chunk.Index, err = OpenIndex(ToIndexPath(path), check /* check */)
+	if err != nil && !os.IsNotExist(err) {
+		// A missing index is expected (callers still use the bloom), anything else is a failure.
+		chunk.Bloom.Close()
+	}
 	return
 }
 

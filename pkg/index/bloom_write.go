@@ -14,38 +14,26 @@ import (
 // because the caller is responsible for that. This is because the caller may be writing the
 // entire chunk (both Bloom and Index) and we want either both to succeed or both to fail.
 func (bl *Bloom) writeBloom(fileName string) ( /* changed */ bool, error) {
-	var err error
-	if bl.File, err = os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0644); err == nil {
-		defer func() {
-			bl.File.Close()
-			bl.File = nil
-		}()
-
-		_, _ = bl.File.Seek(0, io.SeekStart) // already true, but can't hurt
-		bl.Header.Magic = file.SmallMagicNumber
-		bl.Header.Hash = base.BytesToHash(config.HeaderHash(config.ExpectedVersion()))
-
-		if err = binary.Write(bl.File, binary.LittleEndian, bl.Header); err != nil {
-			return false, err
+	bl.Header.Magic = file.SmallMagicNumber
+	bl.Header.Hash = base.BytesToHash(config.HeaderHash(config.ExpectedVersion()))
+	err := writeFileAtomic(fileName, func(w io.Writer) error {
+		if err := binary.Write(w, binary.LittleEndian, bl.Header); err != nil {
+			return err
 		}
-
-		if err = binary.Write(bl.File, binary.LittleEndian, bl.Count); err != nil {
-			return false, err
+		if err := binary.Write(w, binary.LittleEndian, bl.Count); err != nil {
+			return err
 		}
-
 		for _, bb := range bl.Blooms {
-			if err = binary.Write(bl.File, binary.LittleEndian, bb.NInserted); err != nil {
-				return false, err
+			if err := binary.Write(w, binary.LittleEndian, bb.NInserted); err != nil {
+				return err
 			}
-			if err = binary.Write(bl.File, binary.LittleEndian, bb.Bytes); err != nil {
-				return false, err
+			if err := binary.Write(w, binary.LittleEndian, bb.Bytes); err != nil {
+				return err
 			}
 		}
-
-		return true, nil
-	}
-
-	return false, nil
+		return nil
+	})
+	return err == nil, err
 }
 
 // updateTag writes a the header back to the bloom file

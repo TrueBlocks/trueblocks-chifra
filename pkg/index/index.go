@@ -1,7 +1,9 @@
 package index
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/ranges"
@@ -60,11 +62,31 @@ func OpenIndex(fileName string, check bool) (Index, error) {
 	indexChunk.Header, err = indexChunk.readHeader(check)
 	if err != nil {
 		indexChunk.Close()
-		return Index{}, fmt.Errorf("%w: %s", err, fileName)
+		if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) || errors.Is(err, ErrIncorrectMagic) {
+			return Index{}, fmt.Errorf("%w: %s: %w", ErrCorruptIndex, fileName, err)
+		}
+		return Index{}, fmt.Errorf("%s: %w", fileName, err)
 	}
 
-	indexChunk.AppTableStart = int64(HeaderWidth + (indexChunk.Header.AddressCount * AddrRecordWidth))
+	info, err := indexChunk.File.Stat()
+	if err != nil {
+		indexChunk.Close()
+		return Index{}, err
+	}
+	want := expectedIndexFileSize(indexChunk.Header)
+	if info.Size() != want {
+		indexChunk.Close()
+		return Index{}, fmt.Errorf("%w: %s size %d want %d", ErrCorruptIndex, fileName, info.Size(), want)
+	}
+
+	indexChunk.AppTableStart = int64(HeaderWidth) + int64(indexChunk.Header.AddressCount)*int64(AddrRecordWidth)
 	return indexChunk, nil
+}
+
+func expectedIndexFileSize(header indexHeader) int64 {
+	return int64(HeaderWidth) +
+		int64(header.AddressCount)*int64(AddrRecordWidth) +
+		int64(header.AppearanceCount)*int64(AppRecordWidth)
 }
 
 // Close closes the Index's associated File pointer (if opened)

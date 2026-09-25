@@ -21,13 +21,17 @@ type AppearanceResult struct {
 func (chunk *Index) ReadAppearances(address base.Address) *AppearanceResult {
 	ret := AppearanceResult{Address: address, Range: chunk.Range}
 
-	foundAt := chunk.searchForAddressRecord(address)
+	foundAt, err := chunk.searchForAddressRecord(address)
+	if err != nil {
+		ret.Err = err
+		return &ret
+	}
 	if foundAt == -1 {
 		return &ret
 	}
 
 	startOfAddressRecord := int64(HeaderWidth + (foundAt * AddrRecordWidth))
-	_, err := chunk.File.Seek(startOfAddressRecord, io.SeekStart)
+	_, err = chunk.File.Seek(startOfAddressRecord, io.SeekStart)
 	if err != nil {
 		ret.Err = err
 		return &ret

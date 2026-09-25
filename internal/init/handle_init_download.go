@@ -5,7 +5,6 @@
 package initPkg
 
 import (
-	"errors"
 	"fmt"
 	"runtime"
 	"strings"
@@ -73,10 +72,8 @@ func (opts *InitOptions) downloadAndReportProgress(chunks []types.ChunkRecord, c
 			logger.Error(event.Error)
 			if ok {
 				failed = append(failed, *chunk)
-				if errors.Is(event.Error, index.ErrWriteToDiscError) {
-					sleep = min(4, sleep*1.2)
-					successCount = 0
-				}
+				sleep = min(4, sleep*1.2)
+				successCount = 0
 			}
 
 		case progress.Start:

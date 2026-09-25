@@ -28,7 +28,6 @@ func DownloadOneChunk(chain string, man *manifest.Manifest, fileRange ranges.Fil
 	logger.Info("Bloom filter hit, downloading index portion", (colors.Yellow + fileRange.String() + colors.Off), "from IPFS.")
 
 	// Start downloading the filter
-	matchedPin.BloomHash = "" // we want to download only the index chunk
 	chunks := []types.ChunkRecord{*matchedPin}
 	progressChannel := make(chan *progress.ProgressMsg)
 
@@ -37,15 +36,26 @@ func DownloadOneChunk(chain string, man *manifest.Manifest, fileRange ranges.Fil
 		close(progressChannel)
 	}()
 
+	var firstErr error
 	for event := range progressChannel {
 		switch event.Event {
 		case progress.AllDone:
-			return nil
+			// completed normally
 		case progress.Cancelled:
-			return nil
+			if firstErr == nil {
+				firstErr = ErrUserHitControlC
+			}
 		case progress.Error:
-			return fmt.Errorf("error while downloading: %s", event.Message)
+			if firstErr == nil {
+				if event.Error != nil {
+					firstErr = fmt.Errorf("error while downloading: %w", event.Error)
+				} else if event.Message != "" {
+					firstErr = fmt.Errorf("error while downloading: %s", event.Message)
+				} else {
+					firstErr = fmt.Errorf("error while downloading")
+				}
+			}
 		}
 	}
-	return nil
+	return firstErr
 }

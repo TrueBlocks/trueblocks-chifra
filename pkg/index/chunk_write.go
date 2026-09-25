@@ -85,56 +85,39 @@ func (chunk *Chunk) Write(chain string, publisher base.Address, fileName string,
 			backup.Restore()
 		}()
 
-		if fp, err := os.OpenFile(indexFn, os.O_WRONLY|os.O_CREATE, 0644); err == nil {
-			// defer fp.Close() // Note -- we don't defer because we want to close the file and possibly pin it below...
-
-			_, _ = fp.Seek(0, io.SeekStart) // already true, but can't hurt
-			header := indexHeader{
-				Magic:           file.MagicNumber,
-				Hash:            base.BytesToHash(config.HeaderHash(config.ExpectedVersion())),
-				AddressCount:    uint32(len(addressTable)),
-				AppearanceCount: uint32(len(appearanceTable)),
+		header := indexHeader{
+			Magic:           file.MagicNumber,
+			Hash:            base.BytesToHash(config.HeaderHash(config.ExpectedVersion())),
+			AddressCount:    uint32(len(addressTable)),
+			AppearanceCount: uint32(len(appearanceTable)),
+		}
+		if err := writeFileAtomic(indexFn, func(w io.Writer) error {
+			if err := binary.Write(w, binary.LittleEndian, header); err != nil {
+				return err
 			}
-			if err = binary.Write(fp, binary.LittleEndian, header); err != nil {
-				return nil, err
+			if err := binary.Write(w, binary.LittleEndian, addressTable); err != nil {
+				return err
 			}
-
-			if err = binary.Write(fp, binary.LittleEndian, addressTable); err != nil {
-				return nil, err
-			}
-
-			if err = binary.Write(fp, binary.LittleEndian, appearanceTable); err != nil {
-				return nil, err
-			}
-
-			if err := fp.Sync(); err != nil {
-				return nil, err
-			}
-
-			if err := fp.Close(); err != nil { // Close the file so we can pin it
-				return nil, err
-			}
-
-			if _, err = bl.writeBloom(ToBloomPath(indexFn)); err != nil {
-				// Cleanup possibly corrupted bloom file, index gets restored by backup mechanism
-				_ = os.Remove(ToBloomPath(indexFn))
-				return nil, err
-			}
-
-			// We're successfully written the chunk, so we don't need this any more. If the pin
-			// fails we don't want to have to re-do this chunk, so remove this here.
-			backup.Clear()
-			return &writeReport{
-				chain:        chain,
-				fileRange:    ranges.RangeFromFilename(indexFn),
-				nAddresses:   len(addressTable),
-				nAppearances: len(appearanceTable),
-			}, nil
-
-		} else {
+			return binary.Write(w, binary.LittleEndian, appearanceTable)
+		}); err != nil {
 			return nil, err
 		}
 
+		// The bloom is replaced atomically, so on failure any previous bloom is intact and
+		// the backup mechanism restores the matching index.
+		if _, err = bl.writeBloom(ToBloomPath(indexFn)); err != nil {
+			return nil, err
+		}
+
+		// We're successfully written the chunk, so we don't need this any more. If the pin
+		// fails we don't want to have to re-do this chunk, so remove this here.
+		backup.Clear()
+		return &writeReport{
+			chain:        chain,
+			fileRange:    ranges.RangeFromFilename(indexFn),
+			nAddresses:   len(addressTable),
+			nAppearances: len(appearanceTable),
+		}, nil
 	} else {
 		return nil, err
 	}

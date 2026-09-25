@@ -6,6 +6,7 @@ package monitor
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -94,13 +95,10 @@ func (updater *MonitorUpdate) FreshenMonitors(monitorArray *[]Monitor) (bool, er
 		defer unlockForAddress(address) // reminder: this defers until the function returns, not this loop
 	}
 
-	var m sync.Once
-	canceled := false
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	cleanOnQuit := func() {
-		canceled = true
 		logger.Warn(colors.Yellow+"User hit control+c...", colors.Off)
-		cancel()
 	}
 	trapChannel := sigintTrap.Enable(ctx, cancel, cleanOnQuit)
 	defer sigintTrap.Disable(trapChannel)
@@ -109,7 +107,7 @@ func (updater *MonitorUpdate) FreshenMonitors(monitorArray *[]Monitor) (bool, er
 	for _, addr := range updater.Addrs {
 		err := needsMigration(addr)
 		if err != nil {
-			return canceled, err
+			return ctx.Err() != nil, err
 		}
 
 		if updater.MonitorMap[base.HexToAddress(addr)] == nil {
@@ -126,76 +124,93 @@ func (updater *MonitorUpdate) FreshenMonitors(monitorArray *[]Monitor) (bool, er
 	}
 
 	if updater.SkipFreshen {
-		return canceled, nil
+		return ctx.Err() != nil, nil
 	}
 
 	bloomPath := filepath.Join(config.PathToIndex(updater.Chain), "blooms")
 	files, err := os.ReadDir(bloomPath)
 	if err != nil {
-		return canceled, err
+		return ctx.Err() != nil, err
 	}
 
-	var wg sync.WaitGroup
-	resultChannel := make(chan []index.AppearanceResult, len(files))
-
-	taskCount := 0
+	jobs := make([]freshenJob, 0, len(files))
 	for _, info := range files {
-		if canceled {
-			m.Do(func() { logger.Warn(colors.Yellow+"Finishing", taskCount, "current tasks...", colors.Off) })
+		if ctx.Err() != nil {
+			logger.Warn(colors.Yellow+"Finishing current tasks...", colors.Off)
+			break
+		}
+		if info.IsDir() {
 			continue
 		}
-		if !info.IsDir() {
-			fileName := filepath.Join(bloomPath, info.Name())
-			if !walk.IsCacheType(fileName, walk.Index_Bloom, true /* checkExt */) {
-				continue // sometimes there are .gz files in this folder, for example
-			}
-			fileRange, err := ranges.RangeFromFilenameE(fileName)
-			if err != nil {
-				// don't respond further -- there may be foreign files in the folder
-				fmt.Println(err)
+		fileName := filepath.Join(bloomPath, info.Name())
+		if !walk.IsCacheType(fileName, walk.Index_Bloom, true /* checkExt */) {
+			continue // sometimes there are .gz files in this folder, for example
+		}
+		fileRange, err := ranges.RangeFromFilenameE(fileName)
+		if err != nil {
+			// don't respond further -- there may be foreign files in the folder
+			fmt.Println(err)
+			continue
+		}
+
+		max := os.Getenv("FAKE_FINAL_BLOCK") // This is for testing only, please ignore
+		if len(max) > 0 {
+			if fileRange.Last > base.MustParseBlknum(max) {
 				continue
 			}
+		}
 
-			max := os.Getenv("FAKE_FINAL_BLOCK") // This is for testing only, please ignore
-			if len(max) > 0 {
-				if fileRange.Last > base.MustParseBlknum(max) {
-					continue
-				}
-			}
+		if updater.TestMode && fileRange.Last > maxTestingBlock {
+			continue
+		}
 
-			if updater.TestMode && fileRange.Last > maxTestingBlock {
-				continue
-			}
+		if fileRange.EarlierThanB(updater.FirstBlock) {
+			continue
+		}
 
-			if fileRange.EarlierThanB(updater.FirstBlock) {
-				continue
-			}
+		jobs = append(jobs, freshenJob{fileName: fileName, rng: fileRange})
+	}
 
-			if taskCount >= updater.MaxTasks {
-				resArray := <-resultChannel
-				for _, r := range resArray {
-					updater.updateMonitors(&r)
-				}
-				taskCount--
-			}
+	sort.Slice(jobs, func(i, j int) bool {
+		if jobs[i].rng.First != jobs[j].rng.First {
+			return jobs[i].rng.First < jobs[j].rng.First
+		}
+		return jobs[i].rng.Last < jobs[j].rng.Last
+	})
 
-			// Run a go routine for each index file
-			taskCount++
+	jobs, holeErr := updater.stopAtMissingBloom(jobs)
+
+	batchSize := updater.MaxTasks
+	var firstErr error
+	for start := 0; start < len(jobs) && ctx.Err() == nil && firstErr == nil; start += batchSize {
+		end := start + batchSize
+		if end > len(jobs) {
+			end = len(jobs)
+		}
+		batch := jobs[start:end]
+		var wg sync.WaitGroup
+		resultChannel := make(chan []index.AppearanceResult, len(batch))
+		for _, job := range batch {
 			wg.Add(1)
-			go updater.visitChunkToFreshenFinal(fileName, resultChannel, &wg)
+			go updater.visitChunkToFreshenFinal(job.fileName, resultChannel, &wg)
 		}
+		wg.Wait()
+		close(resultChannel)
+		pending := make([]index.AppearanceResult, 0, len(batch)*len(updater.MonitorMap))
+		for resArray := range resultChannel {
+			pending = append(pending, resArray...)
+		}
+		keep, err := partitionFreshenResults(pending)
+		for i := range keep {
+			updater.updateMonitors(&keep[i])
+		}
+		firstErr = err
+	}
+	if firstErr == nil && ctx.Err() == nil {
+		firstErr = holeErr
 	}
 
-	wg.Wait()
-	close(resultChannel)
-
-	for resArray := range resultChannel {
-		for _, r := range resArray {
-			updater.updateMonitors(&r)
-		}
-	}
-
-	if !updater.TestMode {
+	if firstErr == nil && ctx.Err() == nil && !updater.TestMode {
 		// TODO: Note we could actually test this if we had the concept of a FAKE_HEAD block
 		stagePath := index.ToStagingPath(filepath.Join(config.PathToIndex(updater.Chain), "staging"))
 		stageFn, _ := file.LatestFileInFolder(stagePath)
@@ -230,7 +245,71 @@ func (updater *MonitorUpdate) FreshenMonitors(monitorArray *[]Monitor) (bool, er
 		}
 	}
 
-	return canceled, updater.moveAllToProduction()
+	// A chunk interrupted by control+c still stops progress at its range (above), but it
+	// is a cancellation, not a failure.
+	canceled := ctx.Err() != nil || errors.Is(firstErr, index.ErrUserHitControlC)
+	if errors.Is(firstErr, index.ErrUserHitControlC) {
+		firstErr = nil
+	}
+
+	moveErr := updater.moveAllToProduction()
+	if firstErr != nil {
+		return canceled, firstErr
+	}
+	return canceled, moveErr
+}
+
+type freshenJob struct {
+	fileName string
+	rng      ranges.FileRange
+}
+
+// stopAtMissingBloom drops the (sorted) jobs from the first published chunk that has no bloom
+// on disc. Freshen only sees blooms that exist, so a failed download would otherwise let
+// LastScanned skip that range. Gaps between locally scraped chunks can be legitimate, so
+// only the local manifest decides what should be present.
+func (updater *MonitorUpdate) stopAtMissingBloom(jobs []freshenJob) ([]freshenJob, error) {
+	if len(jobs) == 0 || !file.FileExists(config.PathToManifestFile(updater.Chain)) {
+		return jobs, nil
+	}
+	man, err := manifest.LoadManifest(updater.Chain, updater.PublisherAddr, manifest.LocalCache)
+	if err != nil {
+		return nil, err
+	}
+
+	// maxLast[i] is the furthest block covered by jobs[:i+1], so nested or overlapping
+	// stale blooms still count as coverage.
+	maxLast := make([]base.Blknum, len(jobs))
+	for i, job := range jobs {
+		maxLast[i] = job.rng.Last
+		if i > 0 {
+			maxLast[i] = max(maxLast[i], maxLast[i-1])
+		}
+	}
+
+	last := jobs[len(jobs)-1].rng
+	missing := ranges.FileRange{First: base.NOPOSN, Last: base.NOPOSN}
+	for _, chunk := range man.Chunks {
+		rng := ranges.RangeFromRangeString(chunk.Range)
+		// The parser is lenient; a misread range could hide a hole, so require a round trip.
+		if rng.String() != chunk.Range || rng.First > rng.Last {
+			return nil, fmt.Errorf("malformed manifest range %q", chunk.Range)
+		}
+		if rng.EarlierThanB(updater.FirstBlock) || rng.First > last.First || rng.First >= missing.First {
+			continue
+		}
+		// Present if any local bloom overlaps it (local chunk boundaries may differ).
+		n := sort.Search(len(jobs), func(i int) bool { return jobs[i].rng.First > rng.Last })
+		if n == 0 || maxLast[n-1] < rng.First {
+			missing = rng
+		}
+	}
+	if missing.First == base.NOPOSN {
+		return jobs, nil
+	}
+
+	n := sort.Search(len(jobs), func(i int) bool { return jobs[i].rng.First > missing.First })
+	return jobs[:n], fmt.Errorf("missing bloom filter for published chunk %s", missing)
 }
 
 // visitChunkToFreshenFinal opens an index file, searches for the address(es) we're looking for and pushes
@@ -297,9 +376,13 @@ func (updater *MonitorUpdate) visitChunkToFreshenFinal(fileName string, resultCh
 
 	indexChunk, err := index.OpenIndex(indexFilename, true /* check */)
 	if err != nil {
+		if errors.Is(err, index.ErrCorruptIndex) {
+			updater.quarantineCorruptIndex(indexFilename, bl.Range)
+		}
 		results = append(results, index.AppearanceResult{Range: bl.Range, Err: err})
 		return
 	}
+
 	defer indexChunk.Close()
 
 	for _, mon := range updater.MonitorMap {
@@ -307,16 +390,72 @@ func (updater *MonitorUpdate) visitChunkToFreshenFinal(fileName string, resultCh
 	}
 }
 
+// quarantineCorruptIndex moves a corrupt index aside so a later run downloads it again.
+// Chunks the manifest cannot restore (for example, ones scraped locally) stay in place.
+func (updater *MonitorUpdate) quarantineCorruptIndex(indexFilename string, rng ranges.FileRange) {
+	// LoadManifest falls back to the network when there is no local copy; stay local here.
+	if !file.FileExists(config.PathToManifestFile(updater.Chain)) {
+		logger.Warn("not quarantining corrupt index, no local manifest:", indexFilename)
+		return
+	}
+	man, err := manifest.LoadManifest(updater.Chain, updater.PublisherAddr, manifest.LocalCache)
+	if err != nil {
+		logger.Warn("not quarantining corrupt index, manifest unavailable:", indexFilename, err)
+		return
+	}
+	if pin := man.ChunkMap[rng.String()]; pin == nil || pin.IndexHash == "" {
+		logger.Warn("not quarantining corrupt index missing from manifest:", indexFilename)
+		return
+	}
+	if err := os.Rename(indexFilename, indexFilename+".corrupt"); err != nil && !os.IsNotExist(err) {
+		logger.Error("failed to quarantine corrupt index", indexFilename, err)
+	}
+}
+
+// partitionFreshenResults sorts chunk results and retains only ranges strictly
+// before the earliest failed range so LastScanned cannot leapfrog a hole.
+func partitionFreshenResults(results []index.AppearanceResult) ([]index.AppearanceResult, error) {
+	sort.SliceStable(results, func(i, j int) bool {
+		if results[i].Range.First != results[j].Range.First {
+			return results[i].Range.First < results[j].Range.First
+		}
+		return results[i].Range.Last < results[j].Range.Last
+	})
+
+	var firstErr error
+	holeFirst := base.NOPOSN
+	for _, r := range results {
+		if r.Err != nil {
+			chunkErr := fmt.Errorf("%s: %w", r.Range, r.Err)
+			if !errors.Is(r.Err, index.ErrUserHitControlC) {
+				logger.Error("Error processing index file:", chunkErr)
+			}
+			if firstErr == nil || r.Range.First < holeFirst {
+				firstErr = chunkErr
+				holeFirst = r.Range.First
+			}
+		}
+	}
+	if firstErr == nil {
+		return results, nil
+	}
+	n := 0
+	for n < len(results) && results[n].Range.First < holeFirst {
+		n++
+	}
+	return results[:n], firstErr
+}
+
 // updateMonitors writes an array of appearances to the Monitor file updating the header for lastScanned. It
 // is called by 'chifra list' and 'chifra export' prior to reporting results
 func (updater *MonitorUpdate) updateMonitors(result *index.AppearanceResult) {
 	if result == nil {
-		fmt.Println("Should not happen -- null result")
+		logger.Error("Should not happen -- null result")
 		return
 	}
 
 	if result.Err != nil {
-		fmt.Println("Error processing index file:", result.Err)
+		logger.Error("Error processing index file:", result.Range, result.Err)
 		return
 	}
 
