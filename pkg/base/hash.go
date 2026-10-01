@@ -39,6 +39,10 @@ func (h Hash) MarshalText() ([]byte, error) {
 }
 
 func (h *Hash) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		*h = Hash{}
+		return nil
+	}
 	if string(data) == "\"0x0\"" || string(data) == "\"\"" {
 		return nil
 	}

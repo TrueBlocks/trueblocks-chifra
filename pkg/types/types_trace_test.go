@@ -1,12 +1,32 @@
 package types
 
 import (
+	"encoding/json"
 	"reflect"
 	"testing"
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/cache"
 )
+
+func TestTraceUnmarshalReward(t *testing.T) {
+	// Reth's trace_block(1) response has no transaction for the block reward.
+	data := []byte(`[{"action":{"author":"0x05a56e2d52c817161883f50c441c3228cfe54d9f","rewardType":"block","value":"0x4563918244f40000"},"blockHash":"0x88e96d4537bea4d9c05d12549907b32561d3bf31f45aae734cdc119f13406cb6","blockNumber":1,"result":null,"subtraces":0,"traceAddress":[],"transactionHash":null,"transactionPosition":null,"type":"reward"}]`)
+	var traces []Trace
+	if err := json.Unmarshal(data, &traces); err != nil {
+		t.Fatal(err)
+	}
+	if len(traces) != 1 {
+		t.Fatalf("got %d traces, want 1", len(traces))
+	}
+	trace := traces[0]
+	if trace.TraceType != "reward" || trace.BlockNumber != 1 || !trace.TransactionHash.IsZero() {
+		t.Fatalf("unexpected reward trace: %+v", trace)
+	}
+	if trace.BlockHash != base.HexToHash("0x88e96d4537bea4d9c05d12549907b32561d3bf31f45aae734cdc119f13406cb6") {
+		t.Fatalf("unexpected block hash: %s", trace.BlockHash)
+	}
+}
 
 func TestTraceCache(t *testing.T) {
 	expected := &TraceGroup{

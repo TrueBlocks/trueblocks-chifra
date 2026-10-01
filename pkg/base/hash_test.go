@@ -1,11 +1,36 @@
 package base
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
 )
+
+func TestHash_UnmarshalJSON(t *testing.T) {
+	value := "0x88e96d4537bea4d9c05d12549907b32561d3bf31f45aae734cdc119f13406cb6"
+	for _, input := range []string{"null", `"` + value + `"`, "0", `{}`, `"0x1234"`} {
+		t.Run(input, func(t *testing.T) {
+			hash := HexToHash(value)
+			err := json.Unmarshal([]byte(input), &hash)
+			switch input {
+			case "null":
+				if err != nil || !hash.IsZero() {
+					t.Fatalf("null: got hash %s, error %v", hash, err)
+				}
+			case `"` + value + `"`:
+				if err != nil || hash != HexToHash(value) {
+					t.Fatalf("valid hash: got hash %s, error %v", hash, err)
+				}
+			default:
+				if err == nil {
+					t.Fatalf("invalid hash %s accepted", input)
+				}
+			}
+		})
+	}
+}
 
 func TestHash_Hex(t *testing.T) {
 	hex := "0xF1AA581F353005BA3765B81BF52D6B1C488C2101"
