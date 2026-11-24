@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/base"
 	"github.com/TrueBlocks/trueblocks-chifra/v6/pkg/colors"
@@ -198,19 +199,14 @@ func (updater *MonitorUpdate) FreshenMonitors(monitorArray *[]Monitor) (bool, er
 	if !updater.TestMode {
 		// TODO: Note we could actually test this if we had the concept of a FAKE_HEAD block
 		stagePath := index.ToStagingPath(filepath.Join(config.PathToIndex(updater.Chain), "staging"))
-		stageFn, _ := file.LatestFileInFolder(stagePath)
-		rng := ranges.RangeFromFilename(stageFn)
-		lines := []string{}
+		// The scraper removes the staging file and then writes its
+		// successor in place. A plain read can find no file (and skip the
+		// staging tier) or a half-written one (and advance LastScanned past
+		// records it never read). readStaging waits for a consistent file.
+		rng, lines, staged := readStaging(stagePath)
 		for addr, mon := range updater.MonitorMap {
 			bn := base.Blknum(mon.LastScanned)
-			if !rng.LaterThanB(bn) { // the range precedes the block number
-				if len(lines) == 0 {
-					lines = file.AsciiFileToLines(stageFn)
-					sort.Slice(lines, func(i, j int) bool {
-						return lines[i] < lines[j]
-					})
-				}
-
+			if staged && !rng.LaterThanB(bn) { // the range precedes the block number
 				addrStr := addr.Hex()
 				found := sort.Search(len(lines), func(i int) bool {
 					return lines[i] >= addrStr
@@ -231,6 +227,46 @@ func (updater *MonitorUpdate) FreshenMonitors(monitorArray *[]Monitor) (bool, er
 	}
 
 	return canceled, updater.moveAllToProduction()
+}
+
+// A staging line: address (42), tab, block (9), tab, transaction index (5), newline.
+const stagingLineWidth = 42 + 1 + 9 + 1 + 5 + 1
+
+var (
+	stagingAttempts   = 30
+	stagingRetryDelay = 100 * time.Millisecond
+)
+
+// readStaging returns the range and the sorted lines of the newest staging
+// file, read whole and unchanged. It retries while the folder is empty, the
+// file is still being written (its size is not a whole number of lines, or it
+// changed during the read), or a newer file replaced it. ok is false when no
+// consistent file appeared in time. The caller then skips the staging tier
+// and moves no monitor's LastScanned, so the next run reads the records.
+func readStaging(stagePath string) (rng ranges.FileRange, lines []string, ok bool) {
+	for attempt := 0; attempt < stagingAttempts; attempt++ {
+		if attempt > 0 {
+			time.Sleep(stagingRetryDelay)
+		}
+		name, err := file.LatestFileInFolder(stagePath)
+		if err != nil || name == "" {
+			continue
+		}
+		data, err := os.ReadFile(name)
+		if err != nil || len(data) == 0 || len(data)%stagingLineWidth != 0 {
+			continue
+		}
+		if st, err := os.Stat(name); err != nil || st.Size() != int64(len(data)) {
+			continue
+		}
+		if latest, _ := file.LatestFileInFolder(stagePath); latest != name {
+			continue
+		}
+		lines = strings.Split(strings.TrimSuffix(string(data), "\n"), "\n")
+		sort.Strings(lines)
+		return ranges.RangeFromFilename(name), lines, true
+	}
+	return ranges.FileRange{}, nil, false
 }
 
 // visitChunkToFreshenFinal opens an index file, searches for the address(es) we're looking for and pushes
