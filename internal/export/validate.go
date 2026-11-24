@@ -91,9 +91,9 @@ func (opts *ExportOptions) validateExport() error {
 		opts.LastBlock = base.NOPOSN
 	}
 
-	if opts.FirstBlock >= opts.LastBlock {
-		msg := fmt.Sprintf("first_block (%d) must be strictly earlier than last_block (%d).", opts.FirstBlock, opts.LastBlock)
-		return validate.Usage(msg)
+	// Both ends are inclusive, so first_block == last_block is one block.
+	if err := validate.ValidateBlockRange(opts.FirstBlock, opts.LastBlock); err != nil {
+		return err
 	}
 
 	if opts.LastBlock != base.NOPOSN {
