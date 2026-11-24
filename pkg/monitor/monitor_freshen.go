@@ -389,7 +389,10 @@ func getAppearances(addrStr string, lines []string, lastVisited uint32, found in
 			BlockNumber:      uint32(base.MustParseUint64(strippedBn)),
 			TransactionIndex: uint32(base.MustParseUint64(strippedTxId)),
 		}
-		if r.BlockNumber > lastVisited {
+		// lastVisited is the monitor's LastScanned, which is the next block
+		// to scan (range.Last + 1), not the last block seen. With `>` the
+		// first staging block (finalized + 1) was always dropped.
+		if r.BlockNumber >= lastVisited {
 			results = append(results, r)
 		}
 	}
